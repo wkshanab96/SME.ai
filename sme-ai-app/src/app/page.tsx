@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { ThemeToggle } from '@/components/ui';
 
 export default function Home() {
   return (
@@ -23,6 +26,7 @@ export default function Home() {
             </Link>
           </nav>
           <div className="flex items-center space-x-4">
+            <ThemeToggle variant="icon" />
             <Link href="/login" className="text-sm font-medium hover:text-blue-600 transition-colors">
               Sign In
             </Link>

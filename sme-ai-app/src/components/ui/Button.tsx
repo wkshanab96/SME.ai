@@ -32,7 +32,7 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'href'>,
     VariantProps<typeof buttonVariants> {
   href?: string;
   startIcon?: React.ReactNode;
@@ -42,16 +42,37 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, children, variant, size, fullWidth, href, startIcon, endIcon, isLoading, disabled, ...props }, ref) => {
-    const Comp = href ? Link : "button";
-    const linkProps = href ? { href } : {};
     const isDisabled = isLoading || disabled;
+    
+    if (href) {
+      return (
+        <Link 
+          href={href} 
+          className={buttonVariants({ variant, size, fullWidth, className })}
+          {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+        >
+          {isLoading ? (
+            <span className="loading-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          ) : (
+            <>
+              {startIcon && <span className="mr-2">{startIcon}</span>}
+              {children}
+              {endIcon && <span className="ml-2">{endIcon}</span>}
+            </>
+          )}
+        </Link>
+      );
+    }
 
     return (
-      <Comp
-        className={buttonVariants({ variant, size, fullWidth, className })}
+      <button
         ref={ref}
+        className={buttonVariants({ variant, size, fullWidth, className })}
         disabled={isDisabled}
-        {...linkProps}
         {...props}
       >
         {isLoading ? (
@@ -67,7 +88,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             {endIcon && <span className="ml-2">{endIcon}</span>}
           </>
         )}
-      </Comp>
+      </button>
     );
   }
 );

@@ -30,6 +30,7 @@ const config: Config = {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fadeIn': 'fadeIn 0.5s ease-in-out',
         'slideIn': 'slideIn 0.3s ease-out',
+        'loadingBar': 'loadingBar 1.5s infinite ease-in-out',
       },
       keyframes: {
         fadeIn: {
@@ -40,6 +41,10 @@ const config: Config = {
           '0%': { transform: 'translateY(10px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
+        loadingBar: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(400%)' },
+        },
       },
       boxShadow: {
         'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
@@ -48,7 +53,7 @@ const config: Config = {
     },
   },
   plugins: [],
-  darkMode: 'media',
+  darkMode: 'class', // Changed from 'media' to 'class' to support manual theme switching
 }
 
 export default config

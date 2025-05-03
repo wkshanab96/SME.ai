@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { Button } from '@/components/ui';
+import { Button, ThemeToggle } from '@/components/ui';
 
 // Icons
 import {
@@ -270,8 +270,9 @@ export default function DashboardLayout({
             <HiOutlineMenuAlt2 className="w-5 h-5" />
           </button>
           <h1 className="text-lg font-medium text-gray-700 dark:text-gray-200">Dashboard</h1>
-          <div className="ml-auto">
-            {/* Add any header actions here */}
+          <div className="ml-auto flex items-center space-x-2">
+            <ThemeToggle variant="icon" />
+            {/* Add any other header actions here */}
           </div>
         </header>
 

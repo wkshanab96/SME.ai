@@ -1,8 +1,8 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 
 export interface DropdownOption {
-  id: string;
+  id?: string;  // Made optional
   label: string;
   value: string;
   icon?: React.ReactNode;
@@ -11,28 +11,63 @@ export interface DropdownOption {
 
 export interface DropdownProps {
   options: DropdownOption[];
-  value: string;
-  onChange: (value: string) => void;
+  value?: string;  // Made optional when used with defaultValue + onSelect pattern
+  onChange?: (value: string) => void;  // Made optional to support onSelect alternative
+  onSelect?: (value: string) => void;  // Alternative to onChange for backward compatibility
   label?: string;
   placeholder?: string;
   error?: string;
   disabled?: boolean;
   fullWidth?: boolean;
   className?: string;
+  defaultValue?: string;
 }
 
 export function Dropdown({
   options,
-  value,
+  value: externalValue,
   onChange,
+  onSelect,
   label,
   placeholder = 'Select an option',
   error,
   disabled = false,
   fullWidth = false,
   className = '',
+  defaultValue,
 }: DropdownProps) {
+  // Internal state for when value is not provided externally (controlled vs uncontrolled)
+  const [internalValue, setInternalValue] = useState<string>(externalValue || defaultValue || '');
+  
+  // Use external value if provided (controlled component), otherwise use internal state
+  const value = externalValue !== undefined ? externalValue : internalValue;
+  
+  // Update internal value if external value changes
+  useEffect(() => {
+    if (externalValue !== undefined) {
+      setInternalValue(externalValue);
+    }
+  }, [externalValue]);
+  
+  // Update internal value if defaultValue is provided and no value is set
+  useEffect(() => {
+    if (defaultValue && !externalValue && !internalValue) {
+      setInternalValue(defaultValue);
+    }
+  }, [defaultValue, externalValue, internalValue]);
+
   const selectedOption = options.find(option => option.value === value);
+
+  // Handle value changes - call both onChange and onSelect if provided
+  const handleChange = (val: string) => {
+    // Update internal state if not controlled externally
+    if (externalValue === undefined) {
+      setInternalValue(val);
+    }
+    // Call appropriate handlers
+    if (onChange) onChange(val);
+    if (onSelect) onSelect(val);
+  };
 
   return (
     <div className={`${fullWidth ? 'w-full' : ''} ${className}`}>
@@ -41,7 +76,7 @@ export function Dropdown({
           {label}
         </label>
       )}
-      <Listbox value={value} onChange={onChange} disabled={disabled}>
+      <Listbox value={value} onChange={handleChange} disabled={disabled}>
         <div className="relative">
           <Listbox.Button
             className={`relative w-full cursor-default rounded-md border ${
@@ -87,7 +122,7 @@ export function Dropdown({
             <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-sm shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
               {options.map((option) => (
                 <Listbox.Option
-                  key={option.id}
+                  key={option.id || option.value} // Use value as fallback if id is not provided
                   className={({ active }) =>
                     `relative cursor-default select-none py-2 pl-3 pr-9 ${
                       active ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'
