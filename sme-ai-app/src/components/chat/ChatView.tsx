@@ -1,18 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Message, { MessageRole } from './Message';
 import ChatInput from './ChatInput';
-import { Card } from '@/components/ui';
+import { Card, Loading } from '@/components/ui';
+import { useAuth } from '@/lib/auth-context';
+import ChatService, { ChatMessage as DbChatMessage } from '@/services/chat-service';
+import ProjectService from '@/services/project-service';
 
 export interface ChatMessage {
   id: string;
   content: string;
   role: MessageRole;
   timestamp: Date;
-  isNew?: boolean; // Added flag to track new messages for animation
+  isNew?: boolean;
 }
 
 export interface ChatViewProps {
-  projectId?: string; // Optional project ID for project-specific chats
+  projectId?: string;
   initialMessages?: ChatMessage[];
 }
 
@@ -20,6 +23,7 @@ const ChatView: React.FC<ChatViewProps> = ({
   projectId,
   initialMessages = [] 
 }) => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
   const [useInternet, setUseInternet] = useState(false);
@@ -27,6 +31,8 @@ const ChatView: React.FC<ChatViewProps> = ({
   const [specialty, setSpecialty] = useState('general');
   const [documentType, setDocumentType] = useState('');
   const [showInputAnimation, setShowInputAnimation] = useState(false);
+  const [chatId, setChatId] = useState<string | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   
   // Track if this is the first message (for input positioning)
   const isFirstMessage = messages.length === 0;
@@ -41,6 +47,53 @@ const ChatView: React.FC<ChatViewProps> = ({
     }
   }, [messages]);
 
+  // Load chat history for project
+  useEffect(() => {
+    if (!user || !projectId) return;
+    
+    const loadChatHistory = async () => {
+      try {
+        setIsLoadingHistory(true);
+        
+        // Get project chats
+        const projectChats = await ChatService.getProjectChats(projectId);
+        
+        // Use most recent chat or create a new one
+        let activeChat = projectChats[0];
+        
+        if (!activeChat) {
+          // Create a new chat for this project
+          const project = await ProjectService.getProject(projectId);
+          const chatTitle = project ? `${project.name} Chat` : 'New Project Chat';
+          activeChat = await ChatService.createChat(user.uid, chatTitle, projectId);
+        }
+        
+        setChatId(activeChat.chatId);
+        
+        // Load messages if available
+        if (activeChat.chatId) {
+          const chatMessages = await ChatService.getChatMessages(activeChat.chatId);
+          
+          // Map database messages to component format
+          const formattedMessages: ChatMessage[] = chatMessages.map(msg => ({
+            id: msg.id,
+            content: msg.content,
+            role: msg.role,
+            timestamp: msg.timestamp
+          }));
+          
+          setMessages(formattedMessages);
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+    
+    loadChatHistory();
+  }, [user, projectId]);
+
   // Sample prompt suggestions
   const promptSuggestions = [
     "What are the key requirements in ASME B31.3 for pipe stress analysis?",
@@ -51,13 +104,15 @@ const ChatView: React.FC<ChatViewProps> = ({
 
   // Handle sending a new message
   const handleSendMessage = async (content: string) => {
-    // Generate a unique ID for the message
-    const messageId = Date.now().toString();
+    if (!user) return;
+    
+    // Generate a temporary ID for the message
+    const tempMessageId = `temp-${Date.now()}`;
     const timestamp = new Date();
     
     // Add user message to the chat with isNew flag
     const userMessage: ChatMessage = {
-      id: messageId,
+      id: tempMessageId,
       content,
       role: 'user',
       timestamp,
@@ -74,7 +129,29 @@ const ChatView: React.FC<ChatViewProps> = ({
     setIsLoading(true);
     
     try {
-      // In a real implementation, this would call your backend API
+      let activeChatId = chatId;
+      
+      // Create a new chat if none exists
+      if (!activeChatId) {
+        const newChat = await ChatService.createChat(
+          user.uid, 
+          content.substring(0, 30) + '...',
+          projectId
+        );
+        activeChatId = newChat.chatId;
+        setChatId(activeChatId);
+      }
+      
+      // Save the user message to the database
+      const savedUserMessage = await ChatService.addMessage(activeChatId, {
+        content,
+        role: 'user',
+        timestamp: new Date(),
+        userId: user.uid,
+        projectId
+      });
+      
+      // In a real implementation, this would call your AI service
       // For demo purposes, we'll simulate a delay and return a fixed response
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -91,27 +168,44 @@ const ChatView: React.FC<ChatViewProps> = ({
         responseContent += `\n\nI used the following sources for context: ${contextSources.join(', ')}.`;
       }
       
+      if (projectId) {
+        responseContent += `\n\nI'm responding in the context of your current project.`;
+      }
+      
       // Add document creation context if selected
       if (documentType) {
         responseContent += `\n\nI'll prepare a ${documentType} document based on your request.`;
       }
       
+      // Save the AI response to the database
+      const savedAiMessage = await ChatService.addMessage(activeChatId, {
+        content: responseContent,
+        role: 'ai',
+        timestamp: new Date(),
+        userId: user.uid,
+        projectId
+      });
+      
       // Add AI response to the chat with isNew flag
       const aiMessage: ChatMessage = {
-        id: Date.now().toString(),
+        id: savedAiMessage.id,
         content: responseContent,
         role: 'ai',
         timestamp: new Date(),
         isNew: true
       };
       
-      setMessages(prev => [...prev, aiMessage]);
+      // Update messages, replacing the temp user message with the saved one
+      setMessages(prev => 
+        prev.map(msg => msg.id === tempMessageId ? { ...msg, id: savedUserMessage.id } : msg)
+          .concat([aiMessage])
+      );
       
       // Reset isNew flag after animation completes
       setTimeout(() => {
         setMessages(prev => 
           prev.map(msg => 
-            msg.id === userMessage.id || msg.id === aiMessage.id 
+            (msg.id === savedUserMessage.id || msg.id === savedAiMessage.id) 
               ? { ...msg, isNew: false } 
               : msg
           )
@@ -128,6 +222,17 @@ const ChatView: React.FC<ChatViewProps> = ({
     }
   };
 
+  if (isLoadingHistory) {
+    return (
+      <div className="h-full flex items-center justify-center bg-[#111827]">
+        <div className="text-center">
+          <Loading size="lg" type="spinner" className="mb-4" />
+          <p className="text-gray-300">Loading chat history...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full relative bg-[#111827]">
       {/* Centered content with welcome message for empty state */}
@@ -135,10 +240,13 @@ const ChatView: React.FC<ChatViewProps> = ({
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <div className="text-center mb-6">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-              Welcome to SME.AI
+              {projectId ? 'Project Assistant' : 'Welcome to SME.AI'}
             </h1>
             <p className="text-xl text-gray-300">
-              Your intelligent assistant for engineering knowledge
+              {projectId 
+                ? 'Ask questions related to this project' 
+                : 'Your intelligent assistant for engineering knowledge'
+              }
             </p>
           </div>
           

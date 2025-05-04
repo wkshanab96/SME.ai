@@ -16,6 +16,9 @@
   --success-color: 34, 197, 94;
   --warning-color: 234, 179, 8;
   --error-color: 239, 68, 68;
+  --sidebar-width-expanded: 16rem; /* 256px (w-64) */
+  --sidebar-width-collapsed: 4rem; /* 64px (w-16) */
+  --sidebar-transition-duration: 300ms;
 }
 
 /* Dark mode colors */
@@ -116,4 +119,22 @@ body {
   100% {
     background-position: 0% 50%;
   }
+}
+
+/* Sidebar Hover Styles */
+.sidebar-hover-expand {
+  transition: width var(--sidebar-transition-duration) ease-in-out;
+  will-change: width;
+}
+
+/* Ensure text doesn't wrap in sidebar items when sidebar is expanded */
+.sidebar-item span:last-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ensure compact sidebar items are centered */
+.sidebar-item.justify-center span:first-child {
+  margin: 0 auto;
 }

@@ -7,6 +7,7 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   className?: string;
+  titleClassName?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
@@ -16,6 +17,7 @@ export const Modal = ({
   title, 
   children, 
   className = '',
+  titleClassName = '',
   size = 'md'
 }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -68,18 +70,18 @@ export const Modal = ({
   
   // Using createPortal to render modal at the root level of the DOM
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
       <div 
         ref={modalRef}
-        className={`bg-white rounded-lg shadow-lg w-full mx-4 ${sizeClasses[size]} ${className} overflow-hidden`}
+        className={`bg-gray-900 text-white rounded-lg shadow-xl w-full mx-4 ${sizeClasses[size]} ${className} overflow-hidden border border-gray-700`}
       >
-        <div className="flex justify-between items-center p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <div className="flex justify-between items-center p-4">
+          <h2 className={`text-xl font-bold ${titleClassName || 'text-blue-400'}`}>
             {title}
           </h2>
           <button 
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-gray-400 hover:text-gray-200 focus:outline-none"
             aria-label="Close"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

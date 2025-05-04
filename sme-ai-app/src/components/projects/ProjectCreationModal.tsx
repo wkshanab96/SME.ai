@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { Modal, Input, Button, Loading } from '@/components/ui';
+import { Modal, Loading } from '@/components/ui';
 import { useToast } from '@/components/ui/ToastContainer';
 
 interface ProjectCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onProjectCreate: (projectData: ProjectData) => Promise<any>; // Changed return type to Promise<any> instead of Promise<void>
+  onProjectCreate: (projectData: ProjectData) => Promise<any>;
 }
 
 export interface ProjectData {
@@ -48,7 +48,6 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      // Convert FileList to array and add to state
       const newFiles = Array.from(e.dataTransfer.files);
       handleFilesSelected(newFiles);
     }
@@ -62,8 +61,6 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
   };
 
   const handleFilesSelected = (newFiles: File[]) => {
-    // Check for valid file types - this is a basic check
-    // In a real app, we'd have more thorough validation based on the backend's capabilities
     const validFileTypes = ['application/pdf', 'text/plain', 'application/msword', 
                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                            'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
@@ -72,7 +69,6 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
     
     if (invalidFiles.length > 0) {
       addToast('error', `Some files are not supported. Please upload PDF, TXT, or Office documents.`);
-      // Filter out invalid files
       const validFiles = newFiles.filter(file => validFileTypes.includes(file.type));
       setFiles(prevFiles => [...prevFiles, ...validFiles]);
     } else {
@@ -125,24 +121,30 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
       onClose={!isSubmitting ? onClose : () => {}}
       title="Create a New Project"
       size="lg"
+      titleClassName="text-purple-400"
     >
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
-          <Input
-            label="Project Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter project name"
-            required
-            disabled={isSubmitting}
-          />
+      <form onSubmit={handleSubmit} className="text-gray-200">
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Project Name
+            </label>
+            <input
+              className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter project name"
+              required
+              disabled={isSubmitting}
+            />
+          </div>
           
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
               Description (Optional)
             </label>
             <textarea
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -151,12 +153,12 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
             />
           </div>
           
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
               AI Instructions (Optional)
             </label>
             <textarea
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={3}
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
@@ -166,12 +168,14 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-300 mb-1">
               Upload Knowledge Files
             </label>
             <div
-              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer ${
-                dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+              className={`border border-dashed rounded-md p-6 text-center cursor-pointer transition-colors ${
+                dragActive 
+                  ? 'border-blue-400 bg-blue-900/20' 
+                  : 'border-gray-600 hover:border-blue-500'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -186,28 +190,25 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
                 className="hidden"
                 disabled={isSubmitting}
               />
-              <div className="space-y-1 text-center">
+              <div className="space-y-1 text-center py-4">
                 <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
+                  className="mx-auto h-10 w-10 text-gray-400"
                   stroke="currentColor"
                   fill="none"
-                  viewBox="0 0 48 48"
+                  viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
                   <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    strokeWidth={2}
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3-3m0 0l3 3m-3-3v12"
                   />
                 </svg>
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium text-blue-600 hover:text-blue-500">
-                    Upload files
-                  </span>{' '}
-                  or drag and drop
+                <div className="text-sm text-blue-400 font-medium">
+                  Upload files
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-400">
                   PDF, TXT, DOC, DOCX, XLS, XLSX up to 50MB each
                 </p>
               </div>
@@ -215,14 +216,14 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
           </div>
           
           {files.length > 0 && (
-            <div className="mt-4">
-              <h4 className="font-medium text-gray-700 mb-2">Files to upload ({files.length})</h4>
-              <ul className="divide-y divide-gray-200">
+            <div>
+              <h4 className="font-medium text-gray-300 mb-2">Files to upload ({files.length})</h4>
+              <ul className="divide-y divide-gray-700 rounded-md border border-gray-700 bg-gray-800 overflow-hidden">
                 {files.map((file, index) => (
-                  <li key={index} className="py-2 flex justify-between items-center">
+                  <li key={index} className="px-4 py-3 flex justify-between items-center">
                     <div className="flex items-center">
                       <svg
-                        className="h-5 w-5 text-gray-400 mr-2"
+                        className="h-5 w-5 text-blue-400 mr-2"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -233,10 +234,10 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
                         />
                       </svg>
                       <div>
-                        <p className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                        <p className="text-sm font-medium text-white truncate max-w-xs">
                           {file.name}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-400">
                           {(file.size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       </div>
@@ -244,7 +245,7 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
                     <button
                       type="button"
                       onClick={() => removeFile(index)}
-                      className="text-red-600 hover:text-red-800"
+                      className="text-red-400 hover:text-red-300"
                       disabled={isSubmitting}
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -262,19 +263,23 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
             </div>
           )}
           
-          <div className="flex justify-end pt-4 space-x-3 border-t">
-            <Button
+          <div className="flex justify-end pt-4 space-x-3 border-t border-gray-700 mt-6">
+            <button
               type="button"
-              variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
+              className="px-4 py-2 rounded-md text-gray-300 bg-gray-800 border border-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-500 transition-colors"
             >
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
-              variant="primary"
               disabled={!name.trim() || isSubmitting}
+              className={`px-5 py-2 rounded-md text-white font-medium ${
+                name.trim() && !isSubmitting
+                  ? 'bg-blue-600 hover:bg-blue-700'
+                  : 'bg-gray-700 cursor-not-allowed'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors`}
             >
               {isSubmitting ? (
                 <div className="flex items-center">
@@ -284,7 +289,7 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
               ) : (
                 'Create Project'
               )}
-            </Button>
+            </button>
           </div>
         </div>
       </form>
