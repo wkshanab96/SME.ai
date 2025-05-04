@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import { useTheme } from '@/lib/theme-context';
 import { Button, Card } from '@/components/ui';
 import { Loading } from '@/components/ui';
 import ProjectService, { Project } from '@/services/project-service';
@@ -28,6 +29,7 @@ const formatDate = (date: Date) => {
 
 export default function Dashboard() {
   const { userData, user } = useAuth();
+  const { resolvedTheme } = useTheme();
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
   const [recentChats, setRecentChats] = useState<Chat[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
@@ -69,17 +71,17 @@ export default function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Welcome back, {userData?.displayName?.split(' ')[0] || 'there'}!
+        <h1 className="text-2xl font-bold" style={{ color: `rgb(var(--foreground-rgb))` }}>
+          Welcome back, {userData?.displayName?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'there'}!
         </h1>
-        <p className="mt-1 text-gray-600 dark:text-gray-300">
+        <p className="mt-1" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
           Your specialized AI assistant for {userData?.industry || 'industrial'} expertise
         </p>
       </div>
 
       {/* Quick Actions */}
       <section className="mb-10">
-        <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+        <h2 className="text-lg font-semibold mb-4" style={{ color: `rgb(var(--foreground-rgb))` }}>
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -89,8 +91,8 @@ export default function Dashboard() {
                 <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
                   <HiOutlineChat className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="text-base font-medium">New Chat</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-1">
+                <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>New Chat</h3>
+                <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                   Start a new conversation with your AI assistant
                 </p>
               </div>
@@ -103,8 +105,8 @@ export default function Dashboard() {
                 <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-3">
                   <HiOutlineFolder className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h3 className="text-base font-medium">Projects</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-1">
+                <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>Projects</h3>
+                <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                   View and manage your existing projects
                 </p>
               </div>
@@ -117,8 +119,8 @@ export default function Dashboard() {
                 <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-3">
                   <HiOutlineDocumentText className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>
-                <h3 className="text-base font-medium">Generate Document</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-1">
+                <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>Generate Document</h3>
+                <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                   Create a new Word, PowerPoint, or Excel document
                 </p>
               </div>
@@ -131,8 +133,8 @@ export default function Dashboard() {
                 <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
                   <HiOutlineCloud className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="text-base font-medium">Connect Cloud</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-1">
+                <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>Connect Cloud</h3>
+                <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                   Connect Google Drive, OneDrive, or Dropbox
                 </p>
               </div>
@@ -146,7 +148,7 @@ export default function Dashboard() {
         {/* Recent Projects */}
         <section>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Projects</h2>
+            <h2 className="text-lg font-semibold" style={{ color: `rgb(var(--foreground-rgb))` }}>Recent Projects</h2>
             <Link href="/dashboard/projects" className="text-sm text-blue-600 hover:text-blue-500">
               View all
             </Link>
@@ -161,8 +163,8 @@ export default function Dashboard() {
                 <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
                   <HiOutlineFolder className="w-6 h-6 text-gray-400 dark:text-gray-500" />
                 </div>
-                <h3 className="text-base font-medium text-gray-900 dark:text-white">No projects yet</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">
+                <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>No projects yet</h3>
+                <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                   Create your first project to get started
                 </p>
                 <Link href="/dashboard/projects">
@@ -186,8 +188,8 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="ml-3 flex-1">
-                        <h3 className="text-base font-medium">{project.name}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>{project.name}</h3>
+                        <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                           {project.knowledgeFiles?.length || 0} files · Created {formatDate(project.createdAt)}
                         </p>
                       </div>
@@ -208,7 +210,7 @@ export default function Dashboard() {
         {/* Recent Conversations */}
         <section>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Conversations</h2>
+            <h2 className="text-lg font-semibold" style={{ color: `rgb(var(--foreground-rgb))` }}>Recent Conversations</h2>
             <Link href="/dashboard/chats" className="text-sm text-blue-600 hover:text-blue-500">
               View all
             </Link>
@@ -223,8 +225,8 @@ export default function Dashboard() {
                 <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
                   <HiOutlineChat className="w-6 h-6 text-gray-400 dark:text-gray-500" />
                 </div>
-                <h3 className="text-base font-medium text-gray-900 dark:text-white">No conversations yet</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">
+                <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>No conversations yet</h3>
+                <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                   Start your first conversation to get started
                 </p>
                 <Link href="/dashboard/chats/new">
@@ -248,8 +250,8 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="ml-3 flex-1">
-                        <h3 className="text-base font-medium">{chat.title}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>{chat.title}</h3>
+                        <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                           Updated {formatDate(chat.updatedAt)}
                         </p>
                       </div>
@@ -271,7 +273,7 @@ export default function Dashboard() {
       {/* Industry Resources */}
       <section className="mb-10">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h2 className="text-lg font-semibold" style={{ color: `rgb(var(--foreground-rgb))` }}>
             {userData?.industry || 'Industry'} Resources
           </h2>
           <Link href="/dashboard/resources" className="text-sm text-blue-600 hover:text-blue-500">
@@ -287,8 +289,8 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="ml-3">
-                <h3 className="text-base font-medium">Industrial Standards</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>Industrial Standards</h3>
+                <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                   Access relevant codes and standards for your industry
                 </p>
                 <Button
@@ -310,8 +312,8 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="ml-3">
-                <h3 className="text-base font-medium">Quick Templates</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>Quick Templates</h3>
+                <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                   Ready-made templates for common engineering tasks
                 </p>
                 <Button
@@ -333,8 +335,8 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="ml-3">
-                <h3 className="text-base font-medium">Tutorials</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <h3 className="text-base font-medium" style={{ color: `rgb(var(--foreground-rgb))` }}>Tutorials</h3>
+                <p className="text-sm" style={{ color: `rgb(var(--foreground-rgb))`, opacity: 0.8 }}>
                   Learn how to get the most out of SME.AI
                 </p>
                 <Button

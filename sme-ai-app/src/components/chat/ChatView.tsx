@@ -3,6 +3,7 @@ import Message, { MessageRole } from './Message';
 import ChatInput from './ChatInput';
 import { Card, Loading } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
+import { useTheme } from '@/lib/theme-context';
 import ChatService, { ChatMessage as DbChatMessage } from '@/services/chat-service';
 import ProjectService from '@/services/project-service';
 
@@ -24,6 +25,7 @@ const ChatView: React.FC<ChatViewProps> = ({
   initialMessages = [] 
 }) => {
   const { user } = useAuth();
+  const { resolvedTheme } = useTheme();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
   const [useInternet, setUseInternet] = useState(false);
@@ -224,17 +226,21 @@ const ChatView: React.FC<ChatViewProps> = ({
 
   if (isLoadingHistory) {
     return (
-      <div className="h-full flex items-center justify-center bg-[#111827]">
+      <div className="h-full flex items-center justify-center" style={{ 
+        backgroundColor: resolvedTheme === 'dark' ? 'rgb(17, 24, 39)' : 'rgb(249, 250, 251)' 
+      }}>
         <div className="text-center">
           <Loading size="lg" type="spinner" className="mb-4" />
-          <p className="text-gray-300">Loading chat history...</p>
+          <p style={{ color: `rgb(var(--foreground-rgb))` }}>Loading chat history...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full relative bg-[#111827]">
+    <div className="flex flex-col h-full relative" style={{ 
+      backgroundColor: resolvedTheme === 'dark' ? 'rgb(17, 24, 39)' : 'rgb(249, 250, 251)'
+    }}>
       {/* Centered content with welcome message for empty state */}
       {messages.length === 0 && (
         <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -242,7 +248,9 @@ const ChatView: React.FC<ChatViewProps> = ({
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
               {projectId ? 'Project Assistant' : 'Welcome to SME.AI'}
             </h1>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl" style={{ 
+              color: resolvedTheme === 'dark' ? 'rgb(209, 213, 219)' : 'rgb(55, 65, 81)' 
+            }}>
               {projectId 
                 ? 'Ask questions related to this project' 
                 : 'Your intelligent assistant for engineering knowledge'
@@ -265,7 +273,9 @@ const ChatView: React.FC<ChatViewProps> = ({
           
           {/* Suggestions below the input */}
           <div className="w-full max-w-2xl px-4 mt-10">
-            <h2 className="text-lg font-semibold text-gray-300 mb-3 text-center">
+            <h2 className="text-lg font-semibold mb-3 text-center" style={{ 
+              color: resolvedTheme === 'dark' ? 'rgb(209, 213, 219)' : 'rgb(55, 65, 81)'
+            }}>
               Try asking about:
             </h2>
             
@@ -273,10 +283,12 @@ const ChatView: React.FC<ChatViewProps> = ({
               {promptSuggestions.map((suggestion, index) => (
                 <Card 
                   key={index}
-                  className="px-4 py-3 cursor-pointer hover:bg-gray-800 border border-gray-700 hover:border-blue-500 transition-colors duration-200"
+                  variant="outline"
+                  padding="sm"
+                  className="cursor-pointer hover:border-blue-500 transition-colors duration-200"
                   onClick={() => handleSendMessage(suggestion)}
                 >
-                  <p className="text-gray-200">{suggestion}</p>
+                  <p style={{ color: `rgb(var(--foreground-rgb))` }}>{suggestion}</p>
                 </Card>
               ))}
             </div>
@@ -313,7 +325,11 @@ const ChatView: React.FC<ChatViewProps> = ({
           </div>
           
           {/* Input Area - fixed at bottom with centered input like in Perplexity */}
-          <div className="fixed bottom-0 left-0 right-0 pb-6 pt-10 bg-gradient-to-t from-[#111827] to-transparent">
+          <div className="fixed bottom-0 left-0 right-0 pb-6 pt-10" style={{
+            background: resolvedTheme === 'dark' 
+              ? 'linear-gradient(to top, rgb(17, 24, 39), transparent)'
+              : 'linear-gradient(to top, rgb(249, 250, 251), transparent)'
+          }}>
             <div className="flex items-center justify-center">
               <div className={`w-full max-w-xl mx-auto px-4 ${showInputAnimation ? 'transform translate-y-10 opacity-0 transition-all duration-300' : 'transform translate-y-0 opacity-100 transition-all duration-300'}`}>
                 <ChatInput

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui';
+import { useTheme } from '@/lib/theme-context';
 
 export type MessageRole = 'user' | 'ai';
 
@@ -18,6 +19,7 @@ const Message: React.FC<MessageProps> = ({
   isLoading = false,
   isNew = false
 }) => {
+  const { resolvedTheme } = useTheme();
   const isAI = role === 'ai';
   const [animated, setAnimated] = useState(false);
   
@@ -62,9 +64,15 @@ const Message: React.FC<MessageProps> = ({
         <Card 
           className={`p-4 shadow-sm transition-all duration-200 ${
             isAI 
-              ? 'bg-white dark:bg-gray-800 border-l-4 border-l-blue-600' 
+              ? 'border-l-4 border-l-blue-600' 
               : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
           }`}
+          style={{
+            backgroundColor: isAI 
+              ? resolvedTheme === 'dark' ? 'rgb(31, 41, 55)' : 'white' 
+              : undefined,
+            color: isAI ? `rgb(var(--foreground-rgb))` : 'white'
+          }}
         >
           {isLoading ? (
             <div className="flex items-center space-x-2">
@@ -74,7 +82,9 @@ const Message: React.FC<MessageProps> = ({
             </div>
           ) : (
             <div>
-              <div className="whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none">
+              <div className="whitespace-pre-wrap prose prose-sm max-w-none" style={{
+                color: isAI ? `rgb(var(--foreground-rgb))` : 'white'
+              }}>
                 {content.split('\n').map((line, i) => (
                   <React.Fragment key={i}>
                     {line}

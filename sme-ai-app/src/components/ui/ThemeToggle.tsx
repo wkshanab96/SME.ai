@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from '@/lib/theme-context';
 
 interface ThemeToggleProps {
@@ -13,6 +13,16 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   className = '',
 }) => {
   const { theme, resolvedTheme, setTheme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Only render the toggle after mounting to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  if (!mounted) {
+    return <div className={className} style={{ width: variant === 'icon' ? '40px' : '100px', height: '40px' }} />;
+  }
   
   // Icon variant - just a sun/moon toggle
   if (variant === 'icon') {

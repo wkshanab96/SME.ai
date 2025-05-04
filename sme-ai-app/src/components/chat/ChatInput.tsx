@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button, Toggle, Dropdown } from '@/components/ui';
+import { useTheme } from '@/lib/theme-context';
 
 export interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -22,6 +23,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   onSpecialtyChange,
   onDocumentTypeChange
 }) => {
+  const { resolvedTheme } = useTheme();
   const [message, setMessage] = useState('');
   const [useInternet, setUseInternet] = useState(false);
   const [useCloud, setUseCloud] = useState(false);
@@ -151,6 +153,42 @@ const ChatInput: React.FC<ChatInputProps> = ({
     setShowSpecialtyOptions(false);
   };
 
+  // Get theme-appropriate styles
+  const getBackgroundColor = () => {
+    return resolvedTheme === 'dark' ? 'bg-[#1e293b]' : 'bg-white';
+  };
+  
+  const getBorderColor = () => {
+    return resolvedTheme === 'dark' ? 'border-gray-700' : 'border-gray-300';
+  };
+  
+  const getTextColor = () => {
+    return resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-700';
+  };
+  
+  const getPlaceholderColor = () => {
+    return resolvedTheme === 'dark' ? 'placeholder-gray-400' : 'placeholder-gray-500';
+  };
+  
+  const getToolbarButtonBg = (isActive: boolean) => {
+    if (isActive) {
+      return 'bg-blue-600/20 text-blue-600';
+    }
+    return resolvedTheme === 'dark' 
+      ? 'bg-[#1e293b] text-gray-400 hover:bg-gray-800' 
+      : 'bg-gray-100 text-gray-600 hover:bg-gray-200';
+  };
+  
+  const getDropdownBg = () => {
+    return resolvedTheme === 'dark' 
+      ? 'bg-[#1e293b] border-gray-700' 
+      : 'bg-white border-gray-300';
+  };
+  
+  const getHoverBg = () => {
+    return resolvedTheme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-100';
+  };
+
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit} className="bg-transparent">
@@ -161,10 +199,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full animate-border-flow blur-[1px]"></div>
           )}
           
-          <div className={`relative bg-[#1e293b] rounded-full border ${isFocused ? 'border-transparent z-10' : 'border-gray-700'} transition-all duration-200`}>
+          <div className={`relative ${getBackgroundColor()} rounded-full border ${isFocused ? 'border-transparent z-10' : getBorderColor()} transition-all duration-200`}>
             <textarea
               ref={textareaRef}
-              className="w-full outline-none resize-none py-3 px-4 rounded-full min-h-[50px] max-h-[150px] text-gray-200 bg-transparent placeholder-gray-400 pr-12"
+              className={`w-full outline-none resize-none py-3 px-4 rounded-full min-h-[50px] max-h-[150px] ${getTextColor()} bg-transparent ${getPlaceholderColor()} pr-12`}
               placeholder={placeholder}
               value={message}
               onChange={handleChange}
@@ -185,7 +223,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <button
                 type="button"
                 onClick={toggleAttachmentDropdown}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition-colors"
+                className={`p-1.5 rounded-lg ${resolvedTheme === 'dark' ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'} transition-colors`}
                 title="Attachment"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -195,10 +233,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
               {/* Attachment dropdown */}
               {showAttachmentDropdown && (
-                <div className="absolute bottom-12 right-0 w-48 bg-[#1e293b] rounded-lg shadow-lg border border-gray-700 py-1 z-10">
+                <div className={`absolute bottom-12 right-0 w-48 ${getDropdownBg()} rounded-lg shadow-lg py-1 z-10`}>
                   <button
                     type="button"
-                    className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 flex items-center"
+                    className={`w-full text-left px-4 py-2 text-sm ${getTextColor()} ${getHoverBg()} flex items-center`}
                     onClick={() => handleAttachmentTypeChange('image')}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,7 +246,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   </button>
                   <button
                     type="button"
-                    className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 flex items-center"
+                    className={`w-full text-left px-4 py-2 text-sm ${getTextColor()} ${getHoverBg()} flex items-center`}
                     onClick={() => handleAttachmentTypeChange('file')}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -218,7 +256,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   </button>
                   <button
                     type="button"
-                    className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 flex items-center"
+                    className={`w-full text-left px-4 py-2 text-sm ${getTextColor()} ${getHoverBg()} flex items-center`}
                     onClick={() => handleAttachmentTypeChange('cloud')}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -248,18 +286,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
           {/* Internet toggle */}
           <button
             type="button"
-            className={`rounded-full p-2 ${
-              useInternet 
-                ? 'bg-blue-600/20 text-blue-400' 
-                : 'bg-[#1e293b] text-gray-400 hover:bg-gray-800'
-            } transition-colors group relative`}
+            className={`rounded-full p-2 ${getToolbarButtonBg(useInternet)} transition-colors group relative`}
             onClick={handleInternetToggle}
             title="Use the internet"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03-3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
             </svg>
-            <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+            <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 ${resolvedTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-700'} text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap`}>
               Use the internet
             </span>
           </button>
@@ -267,18 +301,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
           {/* Cloud toggle */}
           <button
             type="button"
-            className={`rounded-full p-2 ${
-              useCloud 
-                ? 'bg-blue-600/20 text-blue-400' 
-                : 'bg-[#1e293b] text-gray-400 hover:bg-gray-800'
-            } transition-colors group relative`}
+            className={`rounded-full p-2 ${getToolbarButtonBg(useCloud)} transition-colors group relative`}
             onClick={handleCloudToggle}
             title="Use the cloud"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
             </svg>
-            <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+            <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 ${resolvedTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-700'} text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap`}>
               Use the cloud
             </span>
           </button>
@@ -289,22 +319,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <button
                 type="button"
                 onClick={toggleSpecialtyOptions}
-                className={`rounded-full p-2 ${
-                  specialty !== 'general'
-                    ? 'bg-blue-600/20 text-blue-400'
-                    : 'bg-[#1e293b] text-gray-400 hover:bg-gray-800'
-                } transition-colors group relative`}
+                className={`rounded-full p-2 ${getToolbarButtonBg(specialty !== 'general')} transition-colors group relative`}
                 title="Specialty"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                 </svg>
-                <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 ${resolvedTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-700'} text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap`}>
                   {specialty === 'general' ? 'Specialty' : specialty}
                 </span>
               </button>
             ) : (
-              <div className="flex space-x-1 bg-[#1e293b] rounded-lg shadow-lg border border-gray-700 py-1 px-1 z-10 items-center">
+              <div className={`flex space-x-1 ${getDropdownBg()} rounded-lg shadow-lg py-1 px-1 z-10 items-center`}>
                 {specialtyOptions.map(option => (
                   <button
                     key={option.value}
@@ -312,7 +338,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     className={`px-2 py-1 rounded text-sm ${
                       specialty === option.value 
                         ? 'bg-blue-600 text-white' 
-                        : 'text-gray-300 hover:bg-gray-800'
+                        : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
                     }`}
                     onClick={() => handleSpecialtyChange(option.value)}
                   >
@@ -329,28 +355,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <button
                 type="button"
                 onClick={toggleDocumentOptions}
-                className={`rounded-full p-2 ${
-                  documentType !== ''
-                    ? 'bg-blue-600/20 text-blue-400'
-                    : 'bg-[#1e293b] text-gray-400 hover:bg-gray-800'
-                } transition-colors group relative`}
+                className={`rounded-full p-2 ${getToolbarButtonBg(documentType !== '')} transition-colors group relative`}
                 title="Create a Document"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 ${resolvedTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-700'} text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap`}>
                   {documentType === '' ? 'Create a Document' : `Create ${documentType}`}
                 </span>
               </button>
             ) : (
-              <div className="flex flex-wrap space-x-1 bg-[#1e293b] rounded-lg shadow-lg border border-gray-700 py-1 px-1 z-10 items-center">
+              <div className={`flex flex-wrap space-x-1 ${getDropdownBg()} rounded-lg shadow-lg py-1 px-1 z-10 items-center`}>
                 <button
                   type="button"
                   className={`px-2 py-1 rounded text-sm ${
                     documentType === 'word' 
                       ? 'bg-blue-600 text-white' 
-                      : 'text-gray-300 hover:bg-gray-800'
+                      : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
                   } flex items-center`}
                   onClick={() => handleDocumentTypeChange('word')}
                 >
@@ -361,7 +383,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   className={`px-2 py-1 rounded text-sm ${
                     documentType === 'powerpoint' 
                       ? 'bg-blue-600 text-white' 
-                      : 'text-gray-300 hover:bg-gray-800'
+                      : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
                   } flex items-center`}
                   onClick={() => handleDocumentTypeChange('powerpoint')}
                 >
@@ -372,7 +394,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   className={`px-2 py-1 rounded text-sm ${
                     documentType === 'excel' 
                       ? 'bg-blue-600 text-white' 
-                      : 'text-gray-300 hover:bg-gray-800'
+                      : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
                   } flex items-center`}
                   onClick={() => handleDocumentTypeChange('excel')}
                 >

@@ -5,9 +5,16 @@
 @tailwind utilities;
 
 :root {
+  /* Light mode defaults */
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 255, 255, 255;
   --background-end-rgb: 245, 245, 245;
+  --card-background: 255, 255, 255;
+  --card-foreground: 17, 24, 39;
+  --sidebar-background: 255, 255, 255;
+  --sidebar-foreground: 17, 24, 39;
+  --sidebar-hover: 239, 246, 255;
+  --border-color: 229, 231, 235;
   --primary-blue: 79, 70, 229;
   --primary-purple: 124, 58, 237;
   --secondary-blue: 96, 165, 250;
@@ -21,13 +28,22 @@
   --sidebar-transition-duration: 300ms;
 }
 
-/* Dark mode colors */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 10, 10, 10;
-    --background-end-rgb: 30, 30, 30;
-  }
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 10, 10, 10;
+  --background-end-rgb: 30, 30, 30;
+  --card-background: 31, 41, 55;
+  --card-foreground: 243, 244, 246;
+  --sidebar-background: 17, 24, 39;
+  --sidebar-foreground: 243, 244, 246;
+  --sidebar-hover: 30, 58, 138, 0.2;
+  --border-color: 75, 85, 99;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
@@ -39,6 +55,20 @@ body {
     )
     fixed;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Apply custom colors to sidebar */
+.sidebar-hover-expand {
+  background-color: rgb(var(--sidebar-background));
+  color: rgb(var(--sidebar-foreground));
+  border-color: rgb(var(--border-color));
+}
+
+/* Card backgrounds */
+.card, [class*="bg-white"] {
+  background-color: rgb(var(--card-background)) !important;
+  color: rgb(var(--card-foreground)) !important;
+  border-color: rgb(var(--border-color)) !important;
 }
 
 /* Common Components */

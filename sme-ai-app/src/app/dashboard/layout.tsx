@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { useTheme } from '@/lib/theme-context';
 import { Button, ThemeToggle } from '@/components/ui';
 import ProjectCreationModal, { ProjectData } from '@/components/projects/ProjectCreationModal';
 import ProjectService, { Project } from '@/services/project-service';
@@ -65,7 +66,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   return (
     <div className="mb-2">
       <button
-        className={`flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 ${compact ? 'justify-center' : ''}`}
+        className={`flex items-center w-full px-3 py-2 text-sm font-medium ${compact ? 'justify-center' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className={compact ? '' : 'mr-2'}>
@@ -86,6 +87,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { user, userData, signOut } = useAuth();
+  const { resolvedTheme } = useTheme();
   const [sidebarState, setSidebarState] = useState<SidebarState>({ 
     isOpen: true, 
     isHovering: false 
@@ -177,7 +179,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-50 dark:bg-gray-900">
+    <div className={`h-screen flex overflow-hidden ${resolvedTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Project Creation Modal */}
       <ProjectCreationModal
         isOpen={isProjectModalOpen}
@@ -198,7 +200,7 @@ export default function DashboardLayout({
         ref={sidebarRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className={`fixed inset-y-0 left-0 z-30 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 sidebar-hover-expand ${
+        className={`fixed inset-y-0 left-0 z-30 sidebar-hover-expand border-r ${
           isEffectivelyClosed ? 'w-16' : 'w-64'
         } ${sidebarMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
@@ -344,7 +346,7 @@ export default function DashboardLayout({
       {/* Main content */}
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isEffectivelyClosed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         {/* Top nav */}
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-14 flex items-center px-4">
+        <header className="card border-b h-14 flex items-center px-4">
           <button 
             onClick={toggleMobileSidebar} 
             className="lg:hidden mr-2 p-1 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
@@ -357,7 +359,7 @@ export default function DashboardLayout({
           >
             <HiOutlineMenuAlt2 className="w-5 h-5" />
           </button>
-          <h1 className="text-lg font-medium text-gray-700 dark:text-gray-200">Dashboard</h1>
+          <h1 className="text-lg font-medium">Dashboard</h1>
           <div className="ml-auto flex items-center space-x-2">
             <ThemeToggle variant="icon" />
             {/* Add any other header actions here */}

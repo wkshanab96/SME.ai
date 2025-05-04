@@ -16,17 +16,44 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('system');
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+  const [isMounted, setIsMounted] = useState(false);
   
-  // Initialize theme from localStorage and set up media query
+  // Mark the component as mounted
   useEffect(() => {
-    // Get stored theme or default to system
-    const storedTheme = localStorage.getItem('theme') as Theme | null;
-    if (storedTheme) {
-      setThemeState(storedTheme);
+    setIsMounted(true);
+  }, []);
+  
+  // Initialize theme from localStorage on first render only
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    try {
+      const root = window.document.documentElement;
+      
+      // Remove any existing theme classes
+      root.classList.remove('light', 'dark');
+      
+      // Get stored theme or default to light
+      const storedTheme = localStorage.getItem('theme') as Theme | null;
+      if (storedTheme) {
+        setThemeState(storedTheme);
+      } else {
+        // If no stored theme, default to light
+        setThemeState('light');
+        localStorage.setItem('theme', 'light');
+        root.classList.add('light');
+      }
+    } catch (e) {
+      console.error("Error accessing localStorage:", e);
     }
+  }, [isMounted]);
+  
+  // Set up system theme change detection and handle theme application
+  useEffect(() => {
+    if (!isMounted) return;
     
     // Apply theme
-    updateTheme(storedTheme || 'system');
+    updateTheme(theme);
     
     // Set up system theme change detection
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -38,33 +65,35 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-  
-  // Update theme whenever it changes
-  useEffect(() => {
-    updateTheme(theme);
-  }, [theme]);
+  }, [theme, isMounted]);
   
   const updateTheme = (newTheme: Theme) => {
-    // Store in localStorage
-    localStorage.setItem('theme', newTheme);
+    if (!isMounted) return;
     
-    // Calculate the effective theme (light or dark)
-    let effective: 'light' | 'dark';
-    if (newTheme === 'system') {
-      effective = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    } else {
-      effective = newTheme;
+    try {
+      const root = window.document.documentElement;
+      
+      // Calculate the effective theme (light or dark)
+      let effective: 'light' | 'dark';
+      if (newTheme === 'system') {
+        effective = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      } else {
+        effective = newTheme;
+      }
+      
+      // Store in localStorage
+      localStorage.setItem('theme', newTheme);
+      
+      // Update DOM by removing both classes first, then adding the correct one
+      root.classList.remove('light', 'dark');
+      root.classList.add(effective);
+      
+      console.log(`Theme updated to ${newTheme} (effective: ${effective})`);
+      
+      setResolvedTheme(effective);
+    } catch (e) {
+      console.error("Error updating theme:", e);
     }
-    
-    // Update DOM
-    if (effective === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    
-    setResolvedTheme(effective);
   };
   
   const setTheme = (newTheme: Theme) => {
@@ -73,12 +102,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   
   const toggleTheme = () => {
     setThemeState(prev => {
-      // If system, switch to the opposite of the resolved theme
-      if (prev === 'system') {
-        return resolvedTheme === 'light' ? 'dark' : 'light';
-      }
-      // Otherwise just toggle
-      return prev === 'light' ? 'dark' : 'light';
+      const newTheme = prev === 'light' || (prev === 'system' && resolvedTheme === 'light') 
+        ? 'dark' 
+        : 'light';
+      console.log(`Toggling theme from ${prev} (resolved: ${resolvedTheme}) to ${newTheme}`);
+      return newTheme;
     });
   };
   
