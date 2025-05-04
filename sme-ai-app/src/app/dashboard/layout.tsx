@@ -6,7 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Button, ThemeToggle } from '@/components/ui';
 import ProjectCreationModal, { ProjectData } from '@/components/projects/ProjectCreationModal';
-import ProjectService from '@/services/project-service';
+import ProjectService, { Project } from '@/services/project-service';
+import ChatService, { Chat } from '@/services/chat-service';
 
 // Icons
 import {
@@ -95,6 +96,10 @@ export default function DashboardLayout({
   // Project creation modal state
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   
+  // State for projects and chats
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [recentChats, setRecentChats] = useState<Chat[]>([]);
+  
   // Compute effective sidebar state
   const isEffectivelyClosed = !sidebarState.isOpen && !sidebarState.isHovering;
 
@@ -104,17 +109,22 @@ export default function DashboardLayout({
     return null;
   }
 
-  // Sample projects data (to be replaced with actual data from Firestore)
-  const projects = [
-    { id: 'project-1', name: 'Process Control System' },
-    { id: 'project-2', name: 'Electrical Design Review' },
-  ];
+  useEffect(() => {
+    const fetchProjectsAndChats = async () => {
+      if (user) {
+        try {
+          const fetchedProjects = await ProjectService.getUserProjects(user.uid);
+          const fetchedChats = await ChatService.getUserChats(user.uid);
+          setProjects(fetchedProjects);
+          setRecentChats(fetchedChats);
+        } catch (error) {
+          console.error('Error fetching projects and chats:', error);
+        }
+      }
+    };
 
-  // Sample recent chats (to be replaced with actual data from Firestore)
-  const recentChats = [
-    { id: 'chat-1', name: 'PLC Logic Question' },
-    { id: 'chat-2', name: 'Motor Sizing Calculation' },
-  ];
+    fetchProjectsAndChats();
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
@@ -220,11 +230,11 @@ export default function DashboardLayout({
                 <div className="space-y-1">
                   {projects.map(project => (
                     <SidebarItem
-                      key={project.id}
+                      key={project.projectId}
                       icon={<HiOutlineFolder />}
                       label={project.name}
-                      href={`/dashboard/projects/${project.id}`}
-                      isActive={pathname === `/dashboard/projects/${project.id}`}
+                      href={`/dashboard/projects/${project.projectId}`}
+                      isActive={pathname === `/dashboard/projects/${project.projectId}`}
                       compact={isEffectivelyClosed}
                     />
                   ))}
@@ -241,11 +251,11 @@ export default function DashboardLayout({
                 <div className="space-y-1">
                   {recentChats.map(chat => (
                     <SidebarItem
-                      key={chat.id}
+                      key={chat.chatId}
                       icon={<HiOutlineChat />}
-                      label={chat.name}
-                      href={`/dashboard/chats/${chat.id}`}
-                      isActive={pathname === `/dashboard/chats/${chat.id}`}
+                      label={chat.title}
+                      href={`/dashboard/chats/${chat.chatId}`}
+                      isActive={pathname === `/dashboard/chats/${chat.chatId}`}
                       compact={isEffectivelyClosed}
                     />
                   ))}
