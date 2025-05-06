@@ -206,67 +206,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
               placeholder={placeholder}
               value={message}
               onChange={handleChange}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
+              onKeyDown={handleKeyDown}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               disabled={disabled}
               rows={1}
             />
-            
-            {/* Attachment button */}
-            <div className="absolute right-12 bottom-2.5 flex items-center" ref={attachmentRef}>
-              <button
-                type="button"
-                onClick={toggleAttachmentDropdown}
-                className={`p-1.5 rounded-lg ${resolvedTheme === 'dark' ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'} transition-colors`}
-                title="Attachment"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                </svg>
-              </button>
-
-              {/* Attachment dropdown */}
-              {showAttachmentDropdown && (
-                <div className={`absolute bottom-12 right-0 w-48 ${getDropdownBg()} rounded-lg shadow-lg py-1 z-10`}>
-                  <button
-                    type="button"
-                    className={`w-full text-left px-4 py-2 text-sm ${getTextColor()} ${getHoverBg()} flex items-center`}
-                    onClick={() => handleAttachmentTypeChange('image')}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Upload Image
-                  </button>
-                  <button
-                    type="button"
-                    className={`w-full text-left px-4 py-2 text-sm ${getTextColor()} ${getHoverBg()} flex items-center`}
-                    onClick={() => handleAttachmentTypeChange('file')}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Upload Local File
-                  </button>
-                  <button
-                    type="button"
-                    className={`w-full text-left px-4 py-2 text-sm ${getTextColor()} ${getHoverBg()} flex items-center`}
-                    onClick={() => handleAttachmentTypeChange('cloud')}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                    </svg>
-                    Attach from Cloud
-                  </button>
-                </div>
-              )}
-            </div>
             
             {/* Send button */}
             <button
@@ -281,128 +226,114 @@ const ChatInput: React.FC<ChatInputProps> = ({
           </div>
         </div>
 
-        {/* Bottom toolbar with options - centered horizontally */}
-        <div className="flex justify-center flex-wrap gap-2 mt-3">
-          {/* Internet toggle */}
+        {/* Bottom toolbar buttons */}
+        <div className="flex justify-center mt-2 gap-2">
           <button
             type="button"
-            className={`rounded-full p-2 ${getToolbarButtonBg(useInternet)} transition-colors group relative`}
+            className={`rounded-full p-1.5 ${getToolbarButtonBg(useInternet)} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
             onClick={handleInternetToggle}
             title="Use the internet"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03-3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
             </svg>
-            <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 ${resolvedTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-700'} text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap`}>
-              Use the internet
-            </span>
           </button>
 
-          {/* Cloud toggle */}
           <button
             type="button"
-            className={`rounded-full p-2 ${getToolbarButtonBg(useCloud)} transition-colors group relative`}
+            className={`rounded-full p-1.5 ${getToolbarButtonBg(useCloud)} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
             onClick={handleCloudToggle}
             title="Use the cloud"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
             </svg>
-            <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 ${resolvedTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-700'} text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap`}>
-              Use the cloud
-            </span>
           </button>
           
-          {/* Specialty options displayed directly */}
-          <div className="relative" ref={specialtyRef}>
-            {!showSpecialtyOptions ? (
+          <button
+            type="button"
+            onClick={toggleSpecialtyOptions}
+            className={`rounded-full p-1.5 ${getToolbarButtonBg(specialty !== 'general')} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
+            title="Specialty"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleDocumentOptions}
+            className={`rounded-full p-1.5 ${getToolbarButtonBg(documentType !== '')} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
+            title="Create a Document"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </button>
+        </div>
+        
+        {/* Specialty options dropdown */}
+        <div className="relative" ref={specialtyRef}>
+          {showSpecialtyOptions && (
+            <div className={`absolute bottom-10 left-1/2 transform -translate-x-1/2 ${getDropdownBg()} rounded-lg shadow-lg py-1 px-1 z-10 flex space-x-1 items-center`}>
+              {specialtyOptions.map(option => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`px-2 py-1 rounded text-xs ${
+                    specialty === option.value 
+                      ? 'bg-blue-600 text-white' 
+                      : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
+                  }`}
+                  onClick={() => handleSpecialtyChange(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        {/* Document type options dropdown */}
+        <div className="relative" ref={documentRef}>
+          {showDocumentOptions && (
+            <div className={`absolute bottom-10 left-1/2 transform -translate-x-1/2 ${getDropdownBg()} rounded-lg shadow-lg py-1 px-1 z-10 flex flex-wrap space-x-1 items-center`}>
               <button
                 type="button"
-                onClick={toggleSpecialtyOptions}
-                className={`rounded-full p-2 ${getToolbarButtonBg(specialty !== 'general')} transition-colors group relative`}
-                title="Specialty"
+                className={`px-2 py-1 rounded text-xs ${
+                  documentType === 'word' 
+                    ? 'bg-blue-600 text-white' 
+                    : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
+                } flex items-center`}
+                onClick={() => handleDocumentTypeChange('word')}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                </svg>
-                <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 ${resolvedTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-700'} text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap`}>
-                  {specialty === 'general' ? 'Specialty' : specialty}
-                </span>
+                Word
               </button>
-            ) : (
-              <div className={`flex space-x-1 ${getDropdownBg()} rounded-lg shadow-lg py-1 px-1 z-10 items-center`}>
-                {specialtyOptions.map(option => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={`px-2 py-1 rounded text-sm ${
-                      specialty === option.value 
-                        ? 'bg-blue-600 text-white' 
-                        : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
-                    }`}
-                    onClick={() => handleSpecialtyChange(option.value)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          {/* Document type options displayed directly */}
-          <div className="relative" ref={documentRef}>
-            {!showDocumentOptions ? (
               <button
                 type="button"
-                onClick={toggleDocumentOptions}
-                className={`rounded-full p-2 ${getToolbarButtonBg(documentType !== '')} transition-colors group relative`}
-                title="Create a Document"
+                className={`px-2 py-1 rounded text-xs ${
+                  documentType === 'powerpoint' 
+                    ? 'bg-blue-600 text-white' 
+                    : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
+                } flex items-center`}
+                onClick={() => handleDocumentTypeChange('powerpoint')}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 ${resolvedTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-700'} text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap`}>
-                  {documentType === '' ? 'Create a Document' : `Create ${documentType}`}
-                </span>
+                PowerPoint
               </button>
-            ) : (
-              <div className={`flex flex-wrap space-x-1 ${getDropdownBg()} rounded-lg shadow-lg py-1 px-1 z-10 items-center`}>
-                <button
-                  type="button"
-                  className={`px-2 py-1 rounded text-sm ${
-                    documentType === 'word' 
-                      ? 'bg-blue-600 text-white' 
-                      : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
-                  } flex items-center`}
-                  onClick={() => handleDocumentTypeChange('word')}
-                >
-                  Word
-                </button>
-                <button
-                  type="button"
-                  className={`px-2 py-1 rounded text-sm ${
-                    documentType === 'powerpoint' 
-                      ? 'bg-blue-600 text-white' 
-                      : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
-                  } flex items-center`}
-                  onClick={() => handleDocumentTypeChange('powerpoint')}
-                >
-                  PowerPoint
-                </button>
-                <button
-                  type="button"
-                  className={`px-2 py-1 rounded text-sm ${
-                    documentType === 'excel' 
-                      ? 'bg-blue-600 text-white' 
-                      : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
-                  } flex items-center`}
-                  onClick={() => handleDocumentTypeChange('excel')}
-                >
-                  Excel
-                </button>
-              </div>
-            )}
-          </div>
+              <button
+                type="button"
+                className={`px-2 py-1 rounded text-xs ${
+                  documentType === 'excel' 
+                    ? 'bg-blue-600 text-white' 
+                    : `${resolvedTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${getHoverBg()}`
+                } flex items-center`}
+                onClick={() => handleDocumentTypeChange('excel')}
+              >
+                Excel
+              </button>
+            </div>
+          )}
         </div>
       </form>
     </div>

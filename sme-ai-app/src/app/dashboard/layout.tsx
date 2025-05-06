@@ -16,13 +16,16 @@ import {
   HiOutlineChat, HiOutlineFolder, HiOutlineCloud,
   HiOutlineCog, HiOutlineLogout, HiOutlineUser,
   HiOutlinePlus, HiOutlineHome, HiOutlineX,
-  HiOutlineMenuAlt2
+  HiOutlineMenuAlt2, HiOutlinePaperClip
 } from 'react-icons/hi';
 
 // Add interface for hover state management
 interface SidebarState {
   isOpen: boolean;
   isHovering: boolean;
+  isPinned: boolean;
+  width: number;
+  isDragging: boolean;
 }
 
 interface SidebarItemProps {
@@ -39,7 +42,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 }) => {
   const content = (
     <div className={`sidebar-item ${isActive ? 'sidebar-item-active' : ''} ${compact ? 'justify-center' : ''}`}>
-      <span className="text-lg">{icon}</span>
+      <span className="sidebar-icon">{icon}</span>
       {!compact && <span>{label}</span>}
     </div>
   );
@@ -56,24 +59,51 @@ interface CollapsibleSectionProps {
   children: React.ReactNode;
   defaultOpen?: boolean;
   compact?: boolean;
+  titleHref?: string; // New prop for navigation
 }
 
 const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ 
-  title, children, defaultOpen = false, compact = false
+  title, children, defaultOpen = false, compact = false, titleHref
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const router = useRouter();
+
+  const handleTitleClick = (e: React.MouseEvent) => {
+    if (titleHref) {
+      e.preventDefault();
+      router.push(titleHref);
+    } else {
+      setIsOpen(!isOpen);
+    }
+  };
 
   return (
     <div className="mb-2">
-      <button
-        className={`flex items-center w-full px-3 py-2 text-sm font-medium ${compact ? 'justify-center' : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className={compact ? '' : 'mr-2'}>
+      <div className="flex items-center w-full px-3 py-2">
+        <button
+          className="flex-shrink-0 mr-2"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Collapse section" : "Expand section"}
+        >
           {isOpen ? <HiOutlineChevronDown className="w-4 h-4" /> : <HiOutlineChevronRight className="w-4 h-4" />}
-        </span>
-        {!compact && <span>{title}</span>}
-      </button>
+        </button>
+        
+        {titleHref ? (
+          <Link 
+            href={titleHref} 
+            className={`flex-grow text-sm font-medium hover:text-blue-500 transition-colors ${compact ? 'text-center' : 'text-left'}`}
+          >
+            {title}
+          </Link>
+        ) : (
+          <button
+            className={`flex-grow text-sm font-medium hover:text-blue-500 transition-colors ${compact ? 'text-center' : 'text-left'}`}
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {title}
+          </button>
+        )}
+      </div>
       {isOpen && <div className={`mt-1 ${compact ? 'pl-0' : 'pl-4'}`}>{children}</div>}
     </div>
   );
@@ -90,10 +120,14 @@ export default function DashboardLayout({
   const { resolvedTheme } = useTheme();
   const [sidebarState, setSidebarState] = useState<SidebarState>({ 
     isOpen: true, 
-    isHovering: false 
+    isHovering: false,
+    isPinned: false,
+    width: 256, // Default width in pixels
+    isDragging: false
   });
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const resizeHandleRef = useRef<HTMLDivElement>(null);
   
   // Project creation modal state
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
@@ -103,7 +137,7 @@ export default function DashboardLayout({
   const [recentChats, setRecentChats] = useState<Chat[]>([]);
   
   // Compute effective sidebar state
-  const isEffectivelyClosed = !sidebarState.isOpen && !sidebarState.isHovering;
+  const isEffectivelyClosed = !sidebarState.isOpen && !sidebarState.isHovering && !sidebarState.isPinned;
 
   // If not authenticated, redirect to login
   if (!user) {
@@ -128,6 +162,53 @@ export default function DashboardLayout({
     fetchProjectsAndChats();
   }, [user]);
 
+  // Handle resize functionality
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (sidebarState.isDragging && sidebarRef.current) {
+        const minWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-min-width'));
+        const maxWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-max-width'));
+        
+        // Calculate new width based on mouse position
+        const newWidth = Math.min(Math.max(e.clientX, minWidth), maxWidth);
+        
+        setSidebarState(prev => ({
+          ...prev,
+          width: newWidth,
+          isOpen: true // Ensure sidebar is open when resizing
+        }));
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (sidebarState.isDragging) {
+        setSidebarState(prev => ({
+          ...prev,
+          isDragging: false
+        }));
+        
+        if (resizeHandleRef.current) {
+          resizeHandleRef.current.classList.remove('active');
+        }
+        
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    };
+
+    if (sidebarState.isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none'; // Prevent text selection while dragging
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [sidebarState.isDragging]);
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -138,7 +219,10 @@ export default function DashboardLayout({
   };
 
   const toggleSidebar = () => {
-    setSidebarState(prev => ({ ...prev, isOpen: !prev.isOpen }));
+    setSidebarState(prev => ({ 
+      ...prev, 
+      isOpen: !prev.isOpen 
+    }));
   };
 
   const toggleMobileSidebar = () => {
@@ -147,11 +231,38 @@ export default function DashboardLayout({
 
   // Handle mouse enter/leave for hover effect
   const handleMouseEnter = () => {
-    setSidebarState(prev => ({ ...prev, isHovering: true }));
+    if (!sidebarState.isPinned) {
+      setSidebarState(prev => ({ ...prev, isHovering: true }));
+    }
   };
 
   const handleMouseLeave = () => {
-    setSidebarState(prev => ({ ...prev, isHovering: false }));
+    if (!sidebarState.isPinned) {
+      setSidebarState(prev => ({ ...prev, isHovering: false }));
+    }
+  };
+
+  // Handle pin/unpin sidebar
+  const handlePinSidebar = () => {
+    setSidebarState(prev => ({ 
+      ...prev, 
+      isPinned: !prev.isPinned,
+      isOpen: !prev.isPinned // Ensure it's open when pinned
+    }));
+  };
+
+  // Handle resize start
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (resizeHandleRef.current) {
+      resizeHandleRef.current.classList.add('active');
+    }
+    
+    setSidebarState(prev => ({
+      ...prev,
+      isDragging: true
+    }));
   };
   
   // Handle project creation
@@ -200,12 +311,33 @@ export default function DashboardLayout({
         ref={sidebarRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className={`fixed inset-y-0 left-0 z-30 sidebar-hover-expand border-r ${
-          isEffectivelyClosed ? 'w-16' : 'w-64'
-        } ${sidebarMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+        className={`fixed inset-y-0 left-0 z-30 sidebar-hover-expand ${
+          sidebarMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } border-r border-gray-200 dark:border-gray-700`}
+        style={{ 
+          width: isEffectivelyClosed ? '4rem' : `${sidebarState.width}px`,
+          backgroundColor: `rgb(var(--sidebar-background))`,
+        }}
       >
+        {/* Resize handle */}
+        <div 
+          ref={resizeHandleRef}
+          className="sidebar-resize-handle"
+          onMouseDown={handleResizeStart}
+          title="Drag to resize sidebar"
+        />
+        
+        {/* Pin button */}
+        <button 
+          onClick={handlePinSidebar}
+          className={`pin-button ${sidebarState.isPinned ? 'pinned' : ''}`}
+          title={sidebarState.isPinned ? "Unpin sidebar" : "Pin sidebar"}
+        >
+          <HiOutlinePaperClip className="w-5 h-5" />
+        </button>
+        
         <div className="h-full flex flex-col">
-          <div className="flex items-center justify-between h-14 px-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between h-14 px-4">
             <Link href="/" className="flex items-center">
               <h1 className={`text-lg font-bold gradient-text ${isEffectivelyClosed ? 'hidden' : 'block'}`}>SME.AI</h1>
               <h1 className={`text-lg font-bold gradient-text ${isEffectivelyClosed ? 'block' : 'hidden'}`}>S</h1>
@@ -218,7 +350,7 @@ export default function DashboardLayout({
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto py-4 px-2">
+          <div className="flex-1 overflow-y-auto py-4 px-2 custom-scrollbar">
             <SidebarItem
               icon={<HiOutlineHome />}
               label="Home"
@@ -227,8 +359,13 @@ export default function DashboardLayout({
               compact={isEffectivelyClosed}
             />
 
-            <div className="mt-4 mb-2 border-t border-gray-200 dark:border-gray-700 pt-4">
-              <CollapsibleSection title="Projects" defaultOpen={true} compact={isEffectivelyClosed}>
+            <div className="mt-4 mb-2 pt-4">
+              <CollapsibleSection 
+                title="Projects" 
+                defaultOpen={true} 
+                compact={isEffectivelyClosed} 
+                titleHref="/dashboard/projects"
+              >
                 <div className="space-y-1">
                   {projects.map(project => (
                     <SidebarItem
@@ -249,7 +386,12 @@ export default function DashboardLayout({
                 </div>
               </CollapsibleSection>
 
-              <CollapsibleSection title="Chats" defaultOpen={true} compact={isEffectivelyClosed}>
+              <CollapsibleSection 
+                title="Chats" 
+                defaultOpen={true} 
+                compact={isEffectivelyClosed}
+                titleHref="/dashboard/chats"
+              >
                 <div className="space-y-1">
                   {recentChats.map(chat => (
                     <SidebarItem
@@ -304,7 +446,7 @@ export default function DashboardLayout({
             </div>
           </div>
 
-          <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+          <div className="p-4">
             <div className={`flex items-center mb-3 ${isEffectivelyClosed ? 'justify-center' : ''}`}>
               <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                 {userData?.displayName ? userData.displayName[0].toUpperCase() : 'U'}
@@ -344,30 +486,21 @@ export default function DashboardLayout({
       </div>
 
       {/* Main content */}
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isEffectivelyClosed ? 'lg:ml-16' : 'lg:ml-64'}`}>
-        {/* Top nav */}
-        <header className="card border-b h-14 flex items-center px-4">
+      <div className="flex-1 flex flex-col overflow-hidden transition-all duration-300" 
+           style={{ marginLeft: isEffectivelyClosed ? '4rem' : `${sidebarState.width}px` }}>
+        {/* Header for mobile */}
+        <div className="lg:hidden flex items-center px-4 h-14 border-b border-gray-200 dark:border-gray-700">
           <button 
-            onClick={toggleMobileSidebar} 
-            className="lg:hidden mr-2 p-1 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
+            onClick={toggleMobileSidebar}
+            className="p-1 mr-4 text-gray-500 focus:outline-none"
           >
-            <HiOutlineMenuAlt2 className="w-5 h-5" />
+            <HiOutlineMenuAlt2 className="w-6 h-6" />
           </button>
-          <button
-            onClick={toggleSidebar}
-            className="hidden lg:block mr-2 p-1 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
-          >
-            <HiOutlineMenuAlt2 className="w-5 h-5" />
-          </button>
-          <h1 className="text-lg font-medium">Dashboard</h1>
-          <div className="ml-auto flex items-center space-x-2">
-            <ThemeToggle variant="icon" />
-            {/* Add any other header actions here */}
-          </div>
-        </header>
-
+          <h1 className="text-xl font-bold gradient-text">SME.AI</h1>
+        </div>
+        
         {/* Main content */}
-        <main className="flex-1 overflow-auto p-4">
+        <main className="flex-1 overflow-auto pt-6 px-6 md:pt-8 md:px-8">
           {children}
         </main>
       </div>

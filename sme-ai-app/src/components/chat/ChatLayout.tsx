@@ -1,0 +1,61 @@
+import React, { ReactNode } from 'react';
+import { useTheme } from '@/lib/theme-context';
+
+interface ChatLayoutProps {
+  children: ReactNode;
+  inputComponent: ReactNode;
+  isLoading?: boolean;
+  showInputAnimation?: boolean;
+}
+
+/**
+ * ChatLayout component for consistent message and input alignment
+ * This component ensures proper spacing between messages and input box
+ */
+const ChatLayout: React.FC<ChatLayoutProps> = ({
+  children,
+  inputComponent,
+  isLoading = false,
+  showInputAnimation = false
+}) => {
+  const { resolvedTheme } = useTheme();
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Messages container with consistent width */}
+      <div className="flex-grow overflow-y-auto pt-4 pb-36 custom-scrollbar">
+        <div className="flex flex-col max-w-4xl w-full mx-auto px-4">
+          <div className="flex flex-col w-full">
+            {/* Messages will be rendered here */}
+            {children}
+          </div>
+        </div>
+      </div>
+      
+      {/* Input area with fixed position and consistent alignment */}
+      <div 
+        className="fixed bottom-0 left-0 right-0 pb-6 pt-10"
+        style={{
+          background: resolvedTheme === 'dark' 
+            ? 'linear-gradient(to top, rgb(17, 24, 39) 50%, rgba(17, 24, 39, 0))'
+            : 'linear-gradient(to top, rgb(249, 250, 251) 50%, rgba(249, 250, 251, 0))'
+        }}
+      >
+        <div className="max-w-4xl mx-auto px-4 w-full">
+          <div 
+            className={`${
+              showInputAnimation 
+                ? 'transform translate-y-10 opacity-0' 
+                : 'transform translate-y-0 opacity-100'
+            } transition-all duration-300`}
+          >
+            {/* Chat input will be rendered here */}
+            {inputComponent}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChatLayout;
