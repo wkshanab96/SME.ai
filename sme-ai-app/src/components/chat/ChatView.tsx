@@ -281,9 +281,7 @@ const ChatView: React.FC<ChatViewProps> = ({
 
   if (isLoadingHistory) {
     return (
-      <div className="h-full flex items-center justify-center" style={{ 
-        backgroundColor: resolvedTheme === 'dark' ? 'rgb(17, 24, 39)' : 'rgb(249, 250, 251)' 
-      }}>
+      <div className="h-full flex items-center justify-center">
         <div className="text-center">
           <Loading size="lg" type="spinner" className="mb-4" />
           <p style={{ color: `rgb(var(--foreground-rgb))` }}>Loading chat history...</p>
@@ -293,9 +291,7 @@ const ChatView: React.FC<ChatViewProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full relative" style={{ 
-      backgroundColor: resolvedTheme === 'dark' ? 'rgb(17, 24, 39)' : 'rgb(249, 250, 251)'
-    }}>
+    <div className="flex flex-col h-full relative">
       {/* Back to Project button - matches the design in the screenshot */}
       {projectId && (
         <div className="absolute top-4 left-4 z-10">
@@ -306,7 +302,7 @@ const ChatView: React.FC<ChatViewProps> = ({
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            <span>Back to Project</span>
+            
           </button>
         </div>
       )}

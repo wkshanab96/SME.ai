@@ -33,17 +33,12 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
       </div>
       
       {/* Input area with fixed position and consistent alignment */}
-      <div 
-        className="bottom-0 left-0 right-0 pb-6 pt-10 z-10"
-        style={{
-          background: resolvedTheme === 'dark' 
-            ? 'linear-gradient(to top, rgb(17, 24, 39) 50%, rgba(17, 24, 39, 0))'
-            : 'linear-gradient(to top, rgb(249, 250, 251) 50%, rgba(249, 250, 251, 0))'
-        }}
+      <div
+ className="bottom-0 left-0 right-0 pb-6 pt-10 z-10"
       >
         <div className="max-w-4xl mx-auto px-4 w-full">
-          <div 
-            className={`${
+          <div
+ className={`${
               showInputAnimation 
                 ? 'transform translate-y-10 opacity-0' 
                 : 'transform translate-y-0 opacity-100'
