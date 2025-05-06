@@ -24,8 +24,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
     <div className="flex flex-col h-full">
       {/* Messages container with consistent width */}
       <div className="flex-grow overflow-y-auto pt-4 pb-36 custom-scrollbar">
-        <div className="flex flex-col max-w-4xl w-full mx-auto px-4">
-          <div className="flex flex-col w-full">
+        <div className="flex flex-col max-w-4xl w-full mx-auto px-4 ">
+          <div className="flex flex-col w-full ">
             {/* Messages will be rendered here */}
             {children}
           </div>
@@ -34,7 +34,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
       
       {/* Input area with fixed position and consistent alignment */}
       <div 
-        className="fixed bottom-0 left-0 right-0 pb-6 pt-10"
+        className="bottom-0 left-0 right-0 pb-6 pt-10 z-10"
         style={{
           background: resolvedTheme === 'dark' 
             ? 'linear-gradient(to top, rgb(17, 24, 39) 50%, rgba(17, 24, 39, 0))'
