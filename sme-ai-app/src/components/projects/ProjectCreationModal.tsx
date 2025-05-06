@@ -119,7 +119,6 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={!isSubmitting ? onClose : () => {}}
-      title="Create a New Project"
       size="lg"
       titleClassName="text-purple-400"
     >

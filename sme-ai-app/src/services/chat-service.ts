@@ -1,4 +1,4 @@
-import { collection, addDoc, query, where, orderBy, getDocs, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, query, where, orderBy, getDocs, doc, getDoc, serverTimestamp, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 export interface ChatMessage {
@@ -191,6 +191,29 @@ export const ChatService = {
       });
     } catch (error) {
       console.error('Failed to update chat timestamp:', error);
+      throw error;
+    }
+  }
+  ,
+
+  // Delete a chat and all its messages
+  async deleteChat(chatId: string): Promise<void> {
+    try {
+      const batch = writeBatch(db);
+      
+      // Delete all messages in the chat's subcollection
+      const messagesQuery = query(collection(db, 'chats', chatId, 'messages'));
+      const messagesSnapshot = await getDocs(messagesQuery);
+      messagesSnapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+
+      // Delete the chat document
+      batch.delete(doc(db, 'chats', chatId));
+
+      await batch.commit();
+    } catch (error) {
+      console.error('Failed to delete chat:', error);
       throw error;
     }
   }
