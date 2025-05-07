@@ -276,3 +276,12 @@ body {
   @apply from-blue-900/20 to-purple-900/10;
   @apply border-l-2 border-blue-500;
 }
+
+/* Add this to the bottom of the file */
+html.no-animations * {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-delay: 0s !important;
+  animation-delay: 0s !important;
+}

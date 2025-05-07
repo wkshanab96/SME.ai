@@ -27,15 +27,23 @@ export function Toggle({
     }
   };
 
-  const sizes = {
-    sm: { toggle: 'w-8 h-4', dot: 'w-3 h-3 translate-x-4' },
-    md: { toggle: 'w-11 h-6', dot: 'w-5 h-5 translate-x-5' },
-    lg: { toggle: 'w-14 h-7', dot: 'w-6 h-6 translate-x-7' },
+  // Define toggle and dot sizes
+  const toggleSizes = {
+    sm: 'w-8 h-4',
+    md: 'w-11 h-6',
+    lg: 'w-14 h-7',
   };
-
-  const colors = {
-    blue: checked ? 'bg-primary-blue' : 'bg-gray-200 dark:bg-gray-700',
-    purple: checked ? 'bg-primary-purple' : 'bg-gray-200 dark:bg-gray-700',
+  
+  const dotSizes = {
+    sm: 'w-3 h-3',
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6',
+  };
+  
+  // Define colors
+  const toggleColors = {
+    blue: checked ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700',
+    purple: checked ? 'bg-purple-600' : 'bg-gray-200 dark:bg-gray-700',
   };
 
   return (
@@ -51,22 +59,23 @@ export function Toggle({
             aria-label={label || 'Toggle'}
           />
           <div
-            className={`block ${sizes[size].toggle} ${colors[color]} rounded-full transition ${disabled ? 'opacity-50' : ''}`}
+            className={`block ${toggleSizes[size]} ${toggleColors[color]} rounded-full transition-colors ${disabled ? 'opacity-50' : ''}`}
             role="checkbox"
             tabIndex={disabled ? -1 : 0}
             aria-checked={checked}
             onKeyDown={disabled ? undefined : handleKeyDown}
           />
           <div
-            className={`dot absolute left-1 top-1 bg-white rounded-full transition ${
-              checked ? sizes[size].dot : ''
-            } ${disabled ? 'opacity-80' : ''}`}
+            className={`absolute left-0.5 top-0.5 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+              dotSizes[size]
+            } ${disabled ? 'opacity-80' : ''} ${
+              checked ? 'transform' : ''
+            }`}
             style={{
-              width: sizes[size].dot.split(' ')[0].replace('w-', '') + 'rem',
-              height: sizes[size].dot.split(' ')[1].replace('h-', '') + 'rem',
-              transform: checked
-                ? `translateX(${sizes[size].dot.split(' ')[2].replace('translate-x-', '')}rem)`
-                : 'none',
+              transform: checked ? 
+                size === 'sm' ? 'translateX(1rem)' :
+                size === 'md' ? 'translateX(1.25rem)' :
+                'translateX(2rem)' : 'none',
             }}
           />
         </div>

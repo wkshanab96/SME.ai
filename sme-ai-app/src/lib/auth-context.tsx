@@ -9,6 +9,20 @@ interface UserData {
   email: string | null;
   photoURL: string | null;
   industry: Industry | null;
+  firstName?: string;
+  lastName?: string;
+  company?: string;
+  role?: string;
+  phoneNumber?: string;
+  emailVerified?: boolean;
+}
+
+interface ProfileUpdateData {
+  firstName?: string;
+  lastName?: string;
+  company?: string;
+  role?: string;
+  phoneNumber?: string;
 }
 
 interface AuthContextType {
@@ -21,6 +35,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
   updateIndustry: (industry: Industry) => Promise<void>;
+  updateUserProfile: (profileData: ProfileUpdateData) => Promise<void>;
 }
 
 // Create context with default values
@@ -34,6 +49,7 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   sendPasswordReset: async () => {},
   updateIndustry: async () => {},
+  updateUserProfile: async () => {},
 });
 
 // Custom hook to use the auth context
@@ -52,7 +68,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (user) {
         try {
           const userDataFromFirestore = await AuthService.getCurrentUserData(user);
-          setUserData(userDataFromFirestore as UserData);
+          setUserData({
+            ...userDataFromFirestore as UserData,
+            emailVerified: user.emailVerified
+          });
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -94,6 +113,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUserProfile = async (profileData: ProfileUpdateData) => {
+    if (user) {
+      await AuthService.updateUserProfile(user.uid, profileData);
+      
+      // Update local state to reflect changes
+      setUserData(prev => {
+        if (!prev) return null;
+        
+        // Construct display name from first and last name
+        const firstName = profileData.firstName || prev.firstName || '';
+        const lastName = profileData.lastName || prev.lastName || '';
+        const displayName = `${firstName} ${lastName}`.trim() || prev.displayName;
+        
+        return {
+          ...prev,
+          ...profileData,
+          displayName
+        };
+      });
+    }
+  };
+
   const value = {
     user,
     userData,
@@ -104,6 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
     sendPasswordReset,
     updateIndustry,
+    updateUserProfile,
   };
 
   return (

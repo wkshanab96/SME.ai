@@ -14,6 +14,14 @@ import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { Industry } from '@/types';
 
+interface ProfileUpdateData {
+  firstName?: string;
+  lastName?: string;
+  company?: string;
+  role?: string;
+  phoneNumber?: string;
+}
+
 // Main Authentication Service
 export const AuthService = {
   // Sign up with email and password
@@ -138,6 +146,41 @@ export const AuthService = {
       },
       { merge: true }
     );
+  },
+  
+  // Update user profile information
+  async updateUserProfile(userId: string, profileData: ProfileUpdateData): Promise<void> {
+    try {
+      // Update user document in Firestore with the new profile data
+      await setDoc(
+        doc(db, 'users', userId),
+        {
+          ...profileData,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+      
+      // If the user has both first and last name, update their display name in Firebase Auth
+      if (profileData.firstName || profileData.lastName) {
+        const userData = await this.getCurrentUserData(auth.currentUser as User);
+        
+        // Get existing data to combine with new data
+        const firstName = profileData.firstName || userData?.firstName || '';
+        const lastName = profileData.lastName || userData?.lastName || '';
+        const displayName = `${firstName} ${lastName}`.trim();
+        
+        // Only update if we have a valid display name and the user is logged in
+        if (displayName && auth.currentUser) {
+          await updateProfile(auth.currentUser, {
+            displayName
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Failed to update user profile:", error);
+      throw error;
+    }
   },
   
   // Get current user data from Firestore

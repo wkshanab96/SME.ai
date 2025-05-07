@@ -1,19 +1,42 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Toggle, ThemeToggle, Button } from '@/components/ui';
 import { useTheme } from '@/lib/theme-context';
+import { useAnimation } from '@/lib/animation-context';
 import { useToast } from '@/components/ui/ToastContainer';
 import Image from 'next/image';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
+  const { animationsEnabled, toggleAnimations } = useAnimation();
   const { addToast, ToastContainer } = useToast();
   
   // Additional settings states
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
+  const [rememberSpecialization, setRememberSpecialization] = useState(true);
+  
+  // Check for stored notification preferences on mount
+  useEffect(() => {
+    try {
+      // Load push notification permission status
+      if (window.Notification) {
+        if (Notification.permission === 'granted') {
+          setPushNotifications(true);
+        }
+      }
+      
+      // Load specialization folder preference
+      const savedSpecializationPref = localStorage.getItem('rememberSpecialization');
+      if (savedSpecializationPref !== null) {
+        setRememberSpecialization(savedSpecializationPref === 'true');
+      }
+    } catch (error) {
+      console.error('Error loading preferences:', error);
+    }
+  }, []);
   
   // Mock cloud connections (would come from an API in production)
   const [cloudConnections, setCloudConnections] = useState([
@@ -21,6 +44,48 @@ export default function SettingsPage() {
     { id: 2, type: 'onedrive', name: 'Microsoft OneDrive', connected: false, lastSync: null },
     { id: 3, type: 'dropbox', name: 'Dropbox', connected: false, lastSync: null }
   ]);
+  
+  // Function to request push notification permission
+  const requestNotificationPermission = async () => {
+    if (!window.Notification) {
+      addToast('error', 'Push notifications are not supported in this browser');
+      return;
+    }
+    
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        setPushNotifications(true);
+        // Send a test notification
+        const notification = new Notification('SME.AI Notifications Enabled', {
+          body: 'You will now receive important updates from SME.AI',
+          icon: '/favicon.ico'
+        });
+        addToast('success', 'Push notifications enabled');
+      } else {
+        setPushNotifications(false);
+        addToast('info', 'Permission for push notifications was denied');
+      }
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      addToast('error', 'Failed to enable push notifications');
+    }
+  };
+  
+  // Handle toggle change for push notifications
+  const handlePushNotificationToggle = (checked: boolean) => {
+    if (checked && Notification.permission !== 'granted') {
+      requestNotificationPermission();
+    } else {
+      setPushNotifications(checked);
+    }
+  };
+  
+  // Handle toggle change for specialization folder
+  const handleSpecializationToggle = (checked: boolean) => {
+    setRememberSpecialization(checked);
+    localStorage.setItem('rememberSpecialization', String(checked));
+  };
   
   // Save settings function (would connect to API in a real implementation)
   const saveSettings = () => {
@@ -140,8 +205,8 @@ export default function SettingsPage() {
               </label>
               <div className="flex items-center">
                 <Toggle 
-                  checked={true}
-                  onChange={() => {}} 
+                  checked={animationsEnabled}
+                  onChange={(checked) => toggleAnimations(checked)} 
                   label="Enable animations"
                 />
               </div>
@@ -244,8 +309,8 @@ export default function SettingsPage() {
               
               <div className="flex items-center space-x-2">
                 <Toggle 
-                  checked={true}
-                  onChange={() => {}} 
+                  checked={rememberSpecialization}
+                  onChange={handleSpecializationToggle} 
                   label="Remember authorized folders between sessions"
                 />
               </div>
@@ -283,7 +348,7 @@ export default function SettingsPage() {
                 </div>
                 <Toggle 
                   checked={pushNotifications}
-                  onChange={(checked) => setPushNotifications(checked)} 
+                  onChange={handlePushNotificationToggle} 
                 />
               </div>
             </div>

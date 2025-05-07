@@ -5,7 +5,7 @@ import ChatLayout from './ChatLayout';
 import { Card, Loading } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
 import { useTheme } from '@/lib/theme-context';
-import ChatService, { ChatMessage as DbChatMessage } from '@/services/chat-service';
+import ChatService, { ChatMessage as DbChatMessage, Chat } from '@/services/chat-service';
 import ProjectService from '@/services/project-service';
 import ProjectChatHistory from './ProjectChatHistory';
 
@@ -20,6 +20,8 @@ export interface ChatMessage {
 export interface ChatViewProps {
   projectId?: string;
   initialMessages?: ChatMessage[];
+  initialChat?: Chat;
+  onUpdateChat?: (updatedChat: Chat) => void;
 }
 
 // Chat suggestions for regular chat view
@@ -52,7 +54,9 @@ const chatSuggestions = [
 
 const ChatView: React.FC<ChatViewProps> = ({ 
   projectId,
-  initialMessages = [] 
+  initialMessages = [],
+  initialChat,
+  onUpdateChat
 }) => {
   const { user } = useAuth();
   const { resolvedTheme } = useTheme();
@@ -63,7 +67,7 @@ const ChatView: React.FC<ChatViewProps> = ({
   const [specialty, setSpecialty] = useState('general');
   const [documentType, setDocumentType] = useState('');
   const [showInputAnimation, setShowInputAnimation] = useState(false);
-  const [chatId, setChatId] = useState<string | null>(null);
+  const [chatId, setChatId] = useState<string | null>(initialChat ? initialChat.chatId : null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [projectName, setProjectName] = useState('');
   
@@ -79,6 +83,39 @@ const ChatView: React.FC<ChatViewProps> = ({
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
+
+  // Load messages from initialChat if provided
+  useEffect(() => {
+    // Skip if we already have messages or no initial chat
+    if (messages.length > 0 || !initialChat || !user) return;
+    
+    const loadInitialChatMessages = async () => {
+      try {
+        setIsLoadingHistory(true);
+        
+        setChatId(initialChat.chatId);
+        
+        // Load messages from the chat
+        const chatMessages = await ChatService.getChatMessages(initialChat.chatId);
+        
+        // Map database messages to component format
+        const formattedMessages: ChatMessage[] = chatMessages.map(msg => ({
+          id: msg.id,
+          content: msg.content,
+          role: msg.role,
+          timestamp: msg.timestamp
+        }));
+        
+        setMessages(formattedMessages);
+      } catch (error) {
+        console.error('Error loading chat messages:', error);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+    
+    loadInitialChatMessages();
+  }, [initialChat, messages.length, user]);
 
   // Check for pending message in sessionStorage when component mounts
   useEffect(() => {
@@ -179,10 +216,13 @@ const ChatView: React.FC<ChatViewProps> = ({
         const newChat = await ChatService.createChat(
           user.uid, 
           content.substring(0, 30) + '...',
-          projectId || null // Use null instead of undefined for Firestore
+          projectId || undefined // Use null instead of undefined for Firestore
         );
         activeChatId = newChat.chatId;
         setChatId(activeChatId);
+        if (onUpdateChat) {
+          onUpdateChat(newChat);
+        }
       }
       
       // Create user message object with common fields

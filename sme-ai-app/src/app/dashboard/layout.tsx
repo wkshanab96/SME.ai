@@ -145,6 +145,7 @@ export default function DashboardLayout({
     return null;
   }
 
+  // Fetch projects and chats data - now depends on pathname to refresh when navigating
   useEffect(() => {
     const fetchProjectsAndChats = async () => {
       if (user) {
@@ -152,7 +153,10 @@ export default function DashboardLayout({
           const fetchedProjects = await ProjectService.getUserProjects(user.uid);
           const fetchedChats = await ChatService.getUserChats(user.uid);
           setProjects(fetchedProjects);
-          setRecentChats(fetchedChats);
+          
+          // For chat listings, only keep non-project chats for the sidebar
+          const standaloneChats = fetchedChats.filter(chat => !chat.projectId);
+          setRecentChats(standaloneChats);
         } catch (error) {
           console.error('Error fetching projects and chats:', error);
         }
@@ -160,7 +164,7 @@ export default function DashboardLayout({
     };
 
     fetchProjectsAndChats();
-  }, [user]);
+  }, [user, pathname]); // Add pathname dependency to refresh when user navigates
 
   // Handle resize functionality
   useEffect(() => {
