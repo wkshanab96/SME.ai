@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { Modal, Loading } from '@/components/ui';
-import { useToast } from '@/components/ui/ToastContainer';
-
+import { useToast } from '@/components/ui/ToastContainer'; // Make sure this import path is correct based on your file structure
+import { ProjectService } from '@/services/project-service';
+ 
 interface ProjectCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,7 +28,12 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   
+  // State for deletion
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null); // Assuming projectId is a string
+  const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const projectService = ProjectService; // Use the imported default instance
   const { addToast } = useToast();
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -80,6 +86,29 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
     setFiles(files.filter((_, index) => index !== indexToRemove));
   };
 
+  // --- Deletion Handlers ---
+
+  const handleDeleteClick = (projectId: string) => {
+    setProjectToDelete(projectId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!projectToDelete) return;
+    setIsDeleting(true);
+    try {
+      await projectService.deleteProject(projectToDelete);
+      addToast('success', 'Project deleted successfully.');
+      // Optionally, you might need to refetch project list or remove from local state
+      handleCloseDeleteModal();
+    } catch (error: any) {
+      console.error('Error deleting project:', error);
+      addToast('error', error.message || 'Failed to delete project.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -115,11 +144,27 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
     }
   };
 
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setProjectToDelete(null);
+  };
+
+  // Example usage of handleDeleteClick - This needs to be integrated into where project previews are rendered
+  // This component is specifically for CREATION, so the delete functionality might belong in a different component
+  // that displays project previews (e.g., in the dashboard projects page).
+  // For demonstration within this file, let's add a placeholder button inside the modal's form
+  // that would theoretically delete a project. This is NOT the correct place for it in the final app structure.
+  const placeholderDeleteButton = () => {
+    // This button should ideally exist on a project preview component, not the creation modal
+    return <button onClick={() => handleDeleteClick('some-project-id-here')}>Delete Project (Placeholder)</button>;
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={!isSubmitting ? onClose : () => {}}
       size="lg"
+      title="Create New Project"
       titleClassName="text-purple-400"
     >
       <form onSubmit={handleSubmit} className="text-gray-200">
@@ -292,6 +337,27 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
           </div>
         </div>
       </form>
+
+      {/* Delete Confirmation Modal (This should likely be in the project list view) */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        title="Confirm Project Deletion"
+        size="sm"
+      >
+        <div className="p-4 text-gray-200">
+          <p>Are you sure you want to delete this project? This action cannot be undone.</p>
+          <div className="flex justify-end space-x-3 mt-6">
+            <button onClick={handleCloseDeleteModal} disabled={isDeleting} className="px-4 py-2 rounded-md text-gray-300 bg-gray-800 border border-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-500 transition-colors">
+              Cancel
+            </button>
+            <button onClick={handleConfirmDelete} disabled={isDeleting} className="px-4 py-2 rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors">
+              {isDeleting ? <Loading size="sm" type="spinner" className="mr-2" /> : 'Delete'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
     </Modal>
   );
 };
