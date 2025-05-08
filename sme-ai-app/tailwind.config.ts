@@ -31,6 +31,8 @@ const config: Config = {
         'fadeIn': 'fadeIn 0.5s ease-in-out',
         'slideIn': 'slideIn 0.3s ease-out',
         'loadingBar': 'loadingBar 1.5s infinite ease-in-out',
+        'gradient-x': 'gradient-x 3s ease infinite',
+        'border-flow': 'border-flow 2s ease infinite',
       },
       keyframes: {
         fadeIn: {
@@ -45,10 +47,25 @@ const config: Config = {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(400%)' },
         },
+        'gradient-x': {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'left center'
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center'
+          }
+        },
+        'border-flow': {
+          '0%, 100%': { 'border-color': 'rgba(37, 99, 235, 1)' },
+          '50%': { 'border-color': 'rgba(147, 51, 234, 1)' }
+        }
       },
       boxShadow: {
         'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         'glow': '0 0 15px rgba(79, 70, 229, 0.5)',
+        'chat-focus': '0 0 0 2px rgba(79, 70, 229, 0.3), 0 0 0 4px rgba(124, 58, 237, 0.2)'
       },
     },
   },

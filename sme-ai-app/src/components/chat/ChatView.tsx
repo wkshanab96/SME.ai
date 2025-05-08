@@ -216,7 +216,7 @@ const ChatView: React.FC<ChatViewProps> = ({
         const newChat = await ChatService.createChat(
           user.uid, 
           content.substring(0, 30) + '...',
-          projectId || undefined // Use null instead of undefined for Firestore
+          projectId ? projectId : null // Always use null instead of undefined for Firestore
         );
         activeChatId = newChat.chatId;
         setChatId(activeChatId);
