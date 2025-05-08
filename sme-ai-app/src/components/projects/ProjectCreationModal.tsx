@@ -54,14 +54,19 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const newFiles = Array.from(e.dataTransfer.files);
-      handleFilesSelected(newFiles);
+ const files = Array.from(e.dataTransfer.files);
+ handleFilesSelected(files);
     }
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
+      const files = Array.from(e.target.files);
+ handleFilesSelected(files);
+      // Clear the input's value to allow selecting the same file(s) again if needed
+      if (fileInputRef.current) {
+ fileInputRef.current.value = '';
+      }
       handleFilesSelected(newFiles);
     }
   };

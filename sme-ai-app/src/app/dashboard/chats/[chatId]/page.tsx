@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { FaEdit } from 'react-icons/fa';
 import { useAuth } from '@/lib/auth-context';
-import { Card, Loading } from '@/components/ui';
 import ChatView from '@/components/chat/ChatView';
+import { Loading } from '@/components/ui/Loading';
 import ChatService, { Chat } from '@/services/chat-service';
 
 export default function ChatDetailPage() {
@@ -15,6 +16,8 @@ export default function ChatDetailPage() {
   const [chat, setChat] = useState<Chat | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
 
   useEffect(() => {
     const fetchChat = async () => {
@@ -52,6 +55,23 @@ export default function ChatDetailPage() {
     router.push('/dashboard/chats');
   };
 
+  const handleRenameClick = () => {
+    if (chat?.title) {
+      setNewTitle(chat.title);
+    } else {
+      setNewTitle('New Chat Title'); // Default or empty title
+    }
+    setIsRenaming(true);
+  };
+
+  const handleSaveRename = async () => {
+    if (!chat || !newTitle.trim() || newTitle === chat.title) {
+      setIsRenaming(false);
+      return;
+    }
+    // await ChatService.updateChat(chatId, { title: newTitle }); // Assuming updateChat exists
+    setIsRenaming(false);
+  };
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -61,6 +81,8 @@ export default function ChatDetailPage() {
   }
 
   if (error) {
+    // Assuming you have a Card component
+    const Card = ({ children, className }: { children: React.ReactNode, className?: string }) => <div className={`border rounded-lg shadow-sm ${className}`}>{children}</div>;
     return (
       <Card className="p-6 text-center">
         <h3 className="text-xl font-semibold text-red-500 mb-2">Error</h3>
@@ -76,6 +98,8 @@ export default function ChatDetailPage() {
   }
 
   if (!chat) {
+     // Assuming you have a Card component
+    const Card = ({ children, className }: { children: React.ReactNode, className?: string }) => <div className={`border rounded-lg shadow-sm ${className}`}>{children}</div>;
     return (
       <Card className="p-6 text-center">
         <p className="text-gray-600 dark:text-gray-400">Chat not found</p>
@@ -89,6 +113,7 @@ export default function ChatDetailPage() {
     );
   }
 
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-6">
@@ -96,11 +121,32 @@ export default function ChatDetailPage() {
           onClick={handleBack}
           className="text-blue-500 hover:underline flex items-center"
         >
-          ← Back to Chat History
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+           Back to Chat History
         </button>
-        <h1 className="text-2xl font-bold mt-4 gradient-text">
-          {chat.title || 'Chat'}
-        </h1>
+        <div className="flex items-center mt-4">
+          {isRenaming ? (
+            <>
+              <input
+                type="text"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onBlur={handleSaveRename} // Save when input loses focus
+                onKeyPress={(e) => { if (e.key === 'Enter') handleSaveRename(); }} // Save on Enter key
+                className="text-2xl font-bold mr-2 border-b-2 border-blue-500 dark:border-blue-400 bg-transparent focus:outline-none"
+              />
+            </>
+          ) : (
+            <h1 className="text-2xl font-bold mr-2 gradient-text">{chat.title || 'Chat'}</h1>
+          )}
+          {!isRenaming && (
+            <button onClick={handleRenameClick} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <FaEdit />
+            </button>
+          )}
+        </div>
       </div>
       
       <ChatView 
