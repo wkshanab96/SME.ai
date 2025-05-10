@@ -2,25 +2,25 @@ import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 const cardVariants = cva(
-  "rounded-lg transition-shadow", 
+  'rounded-lg transition-shadow', 
   {
     variants: {
       variant: {
-        default: "bg-white dark:bg-gray-800 shadow-md hover:shadow-lg",
-        outline: "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
-        flat: "bg-white dark:bg-gray-800",
-        gradient: "bg-gradient-to-r from-blue-600/5 to-purple-600/5 shadow-md hover:shadow-lg",
+        default: 'bg-white dark:bg-gray-800 shadow-md hover:shadow-lg',
+        outline: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700',
+        flat: 'bg-white dark:bg-gray-800',
+        gradient: 'bg-gradient-to-r from-blue-600/5 to-purple-600/5 shadow-md hover:shadow-lg',
       },
       padding: {
-        none: "",
-        sm: "p-3",
-        md: "p-4",
-        lg: "p-6",
+        none: '',
+        sm: 'p-3',
+        md: 'p-4',
+        lg: 'p-6',
       }
     },
     defaultVariants: {
-      variant: "default",
-      padding: "md",
+      variant: 'default',
+      padding: 'md',
     }
   }
 );

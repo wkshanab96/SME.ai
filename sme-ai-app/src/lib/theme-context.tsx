@@ -44,7 +44,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         root.classList.add('light');
       }
     } catch (e) {
-      console.error("Error accessing localStorage:", e);
+      console.error('Error accessing localStorage:', e);
     }
   }, [isMounted]);
   
@@ -92,7 +92,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       
       setResolvedTheme(effective);
     } catch (e) {
-      console.error("Error updating theme:", e);
+      console.error('Error updating theme:', e);
     }
   };
   

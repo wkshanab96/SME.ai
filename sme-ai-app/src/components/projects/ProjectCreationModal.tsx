@@ -79,7 +79,7 @@ const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
     const invalidFiles = newFiles.filter(file => !validFileTypes.includes(file.type));
     
     if (invalidFiles.length > 0) {
-      addToast('error', `Some files are not supported. Please upload PDF, TXT, or Office documents.`);
+      addToast('error', 'Some files are not supported. Please upload PDF, TXT, or Office documents.');
       const validFiles = newFiles.filter(file => validFileTypes.includes(file.type));
       setFiles(prevFiles => [...prevFiles, ...validFiles]);
     } else {

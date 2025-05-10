@@ -49,7 +49,7 @@ export const AuthService = {
             lastLogin: serverTimestamp()
           });
         } catch (firestoreError) {
-          console.error("Failed to create user document:", firestoreError);
+          console.error('Failed to create user document:', firestoreError);
           // Continue with authentication even if Firestore write fails
           // The user can still use the app, and we can try to create their document later
         }
@@ -57,7 +57,7 @@ export const AuthService = {
       
       return userCredential;
     } catch (error) {
-      console.error("Signup error:", error);
+      console.error('Signup error:', error);
       throw error;
     }
   },
@@ -77,7 +77,7 @@ export const AuthService = {
           { merge: true }
         );
       } catch (error) {
-        console.error("Failed to update last login:", error);
+        console.error('Failed to update last login:', error);
         // Continue even if update fails
       }
     }
@@ -116,13 +116,13 @@ export const AuthService = {
           );
         }
       } catch (firestoreError) {
-        console.error("Failed to create/update user document:", firestoreError);
+        console.error('Failed to create/update user document:', firestoreError);
         // Continue with authentication even if Firestore operations fail
       }
       
       return userCredential;
     } catch (error) {
-      console.error("Google sign-in error:", error);
+      console.error('Google sign-in error:', error);
       throw error;
     }
   },
@@ -178,7 +178,7 @@ export const AuthService = {
         }
       }
     } catch (error) {
-      console.error("Failed to update user profile:", error);
+      console.error('Failed to update user profile:', error);
       throw error;
     }
   },

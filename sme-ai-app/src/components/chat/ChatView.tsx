@@ -27,27 +27,27 @@ export interface ChatViewProps {
 // Chat suggestions for regular chat view
 const chatSuggestions = [
   {
-    title: "Engineering Assistance",
+    title: 'Engineering Assistance',
     items: [
-      { content: "How do I calculate the pressure drop in a pipe system?", icon: "🔧" },
-      { content: "What are the best practices for electrical grounding in industrial settings?", icon: "⚡" },
-      { content: "Explain PID control systems with examples", icon: "🔄" }
+      { content: 'How do I calculate the pressure drop in a pipe system?', icon: '🔧' },
+      { content: 'What are the best practices for electrical grounding in industrial settings?', icon: '⚡' },
+      { content: 'Explain PID control systems with examples', icon: '🔄' }
     ]
   },
   {
-    title: "Documentation Help",
+    title: 'Documentation Help',
     items: [
-      { content: "Create a technical specification template for a pump system", icon: "📝" },
-      { content: "Help me draft safety procedures for chemical handling", icon: "🧪" },
-      { content: "Generate an equipment maintenance checklist", icon: "📋" }
+      { content: 'Create a technical specification template for a pump system', icon: '📝' },
+      { content: 'Help me draft safety procedures for chemical handling', icon: '🧪' },
+      { content: 'Generate an equipment maintenance checklist', icon: '📋' }
     ]
   },
   {
-    title: "Project Management",
+    title: 'Project Management',
     items: [
-      { content: "What are common risks in engineering projects?", icon: "⚠️" },
-      { content: "How to estimate project timeline for mechanical installation?", icon: "⏱️" },
-      { content: "Best practices for managing contractor relationships", icon: "🤝" }
+      { content: 'What are common risks in engineering projects?', icon: '⚠️' },
+      { content: 'How to estimate project timeline for mechanical installation?', icon: '⏱️' },
+      { content: 'Best practices for managing contractor relationships', icon: '🤝' }
     ]
   }
 ];
@@ -259,7 +259,7 @@ const ChatView: React.FC<ChatViewProps> = ({
       }
       
       if (projectId) {
-        responseContent += `\n\nI'm responding in the context of your current project.`;
+        responseContent += '\n\nI\'m responding in the context of your current project.';
       }
       
       // Add document creation context if selected
@@ -324,7 +324,7 @@ const ChatView: React.FC<ChatViewProps> = ({
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
           <Loading size="lg" type="spinner" className="mb-4" />
-          <p style={{ color: `rgb(var(--foreground-rgb))` }}>Loading chat history...</p>
+          <p style={{ color: 'rgb(var(--foreground-rgb))' }}>Loading chat history...</p>
         </div>
       </div>
     );

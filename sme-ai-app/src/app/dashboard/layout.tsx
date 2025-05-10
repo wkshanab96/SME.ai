@@ -83,7 +83,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         <button
           className="flex-shrink-0 mr-2"
           onClick={() => setIsOpen(!isOpen)}
-          aria-label={isOpen ? "Collapse section" : "Expand section"}
+          aria-label={isOpen ? 'Collapse section' : 'Expand section'}
         >
           {isOpen ? <HiOutlineChevronDown className="w-4 h-4" /> : <HiOutlineChevronRight className="w-4 h-4" />}
         </button>
@@ -320,7 +320,7 @@ export default function DashboardLayout({
         } border-r border-gray-200 dark:border-gray-700`}
         style={{ 
           width: isEffectivelyClosed ? '4rem' : `${sidebarState.width}px`,
-          backgroundColor: `rgb(var(--sidebar-background))`,
+          backgroundColor: 'rgb(var(--sidebar-background))',
         }}
       >
         {/* Resize handle */}
@@ -335,7 +335,7 @@ export default function DashboardLayout({
         <button 
           onClick={handlePinSidebar}
           className={`pin-button ${sidebarState.isPinned ? 'pinned' : ''}`}
-          title={sidebarState.isPinned ? "Unpin sidebar" : "Pin sidebar"}
+          title={sidebarState.isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
         >
           <HiOutlinePaperClip className="w-5 h-5" />
         </button>
