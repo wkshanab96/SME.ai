@@ -8,8 +8,8 @@ interface UserData {
   displayName: string | null;
   email: string | null;
   photoURL: string | null;
-  industry: Industry | null;
-  firstName?: string;
+ industry: Industry | null;
+ firstName?: string | null;
   lastName?: string;
   company?: string;
   role?: string;
@@ -69,7 +69,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const userDataFromFirestore = await AuthService.getCurrentUserData(user);
           setUserData({
-            ...userDataFromFirestore as UserData,
+            ...(userDataFromFirestore as UserData),
+ firstName: (userDataFromFirestore as UserData)?.firstName || null,
+ lastName: (userDataFromFirestore as UserData)?.lastName || null,
             emailVerified: user.emailVerified
           });
         } catch (error) {

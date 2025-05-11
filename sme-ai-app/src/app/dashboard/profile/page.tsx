@@ -25,11 +25,11 @@ export default function ProfilePage() {
   useEffect(() => {
     if (userData) {
       setFormData({
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
-        company: userData.company || '',
-        role: userData.role || '',
-        phoneNumber: userData.phoneNumber || ''
+        firstName: userData.firstName ?? '',
+        lastName: userData.lastName ?? '',
+        company: userData.company ?? '',
+        role: userData.role ?? '',
+        phoneNumber: userData.phoneNumber ?? ''
       });
       setIsLoading(false);
     }

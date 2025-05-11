@@ -83,11 +83,11 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <section className="mb-12">
           <h2 className="text-xl font-semibold mb-6" style={{ color: 'rgb(var(--foreground-rgb))' }}>
-            Quick Actions
-          </h2>
+ Quick Actions
+ </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link href="/dashboard/chats/new" className="block h-full">
-              <Card className="h-full hover:shadow-lg transition-shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <Link href="/dashboard/chats/new" className="block h-full group outline-none">
+              <Card className="h-full hover:shadow-lg transition-shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700 group-hover:border-gradient-to-r group-hover:from-blue-500 group-hover:to-purple-500">
                 <div className="flex flex-col items-center justify-center p-6">
                   <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
                     <HiOutlineChat className="w-7 h-7 text-blue-600 dark:text-blue-400" />
@@ -100,8 +100,8 @@ export default function Dashboard() {
               </Card>
             </Link>
 
-            <Link href="/dashboard/projects" className="block h-full">
-              <Card className="h-full hover:shadow-lg transition-shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <Link href="/dashboard/projects" className="block h-full group">
+              <Card className="h-full hover:shadow-lg transition-shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700 group-hover:border-2 group-hover:border-gradient">
                 <div className="flex flex-col items-center justify-center p-6">
                   <div className="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
                     <HiOutlineFolder className="w-7 h-7 text-purple-600 dark:text-purple-400" />
@@ -114,8 +114,8 @@ export default function Dashboard() {
               </Card>
             </Link>
 
-            <Link href="/dashboard/documents/generate" className="block h-full">
-              <Card className="h-full hover:shadow-lg transition-shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <Link href="/dashboard/documents/generate" className="block h-full group">
+              <Card className="h-full hover:shadow-lg transition-shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700 group-hover:border-2 group-hover:border-gradient">
                 <div className="flex flex-col items-center justify-center p-6">
                   <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
                     <HiOutlineDocumentText className="w-7 h-7 text-green-600 dark:text-green-400" />
@@ -128,8 +128,8 @@ export default function Dashboard() {
               </Card>
             </Link>
 
-            <Link href="/dashboard/cloud/connect" className="block h-full">
-              <Card className="h-full hover:shadow-lg transition-shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <Link href="/dashboard/projects" className="block h-full group">
+              <Card className="h-full hover:shadow-lg transition-shadow dark:bg-gray-800 border border-gray-200 dark:border-gray-700 group-hover:border-2 group-hover:border-gradient">
                 <div className="flex flex-col items-center justify-center p-6">
                   <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
                     <HiOutlineCloud className="w-7 h-7 text-blue-600 dark:text-blue-400" />
