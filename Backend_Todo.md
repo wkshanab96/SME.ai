@@ -2,7 +2,7 @@
 
 **1. Core Infrastructure & Project Setup**
 
-*   [ ] Create the main GCP project.
+*   [x] Create the main GCP project.
 *   [x] Set up the Firebase project (already done).
 *   [x] Configure Firebase Authentication (already done).
 *   [x] Set up Firestore database (already done).
