@@ -1,25 +1,21 @@
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import pluginReactConfig from "eslint-plugin-react/configs/recommended.js";
-import nextPlugin from "@next/eslint-plugin-next";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
 
-export default [
-  { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
-  { languageOptions: { globals: globals.browser } },
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  pluginReactConfig,
-  {
-    plugins: {
-      "@next/next": nextPlugin,
-    },
-    rules: {
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs["core-web-vitals"].rules,
-      "react/react-in-jsx-scope": "off",
-      "react/jsx-uses-react": "off",
-      "quotes": ["error", "single"],
-    },
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+const eslintConfig = compat.extends("next/core-web-vitals", "next/typescript").map((config) => ({
+  ...config,
+  rules: {
+    ...config.rules,
+    // Add your custom rules here
+    "quotes": ["error", "single"],
   },
-];
+}));
+
+export default eslintConfig;
