@@ -1,5 +1,5 @@
+/* filepath: c:\Users\walee\Project 2025\SME\SME.ai\src\app\globals.css */
 @import "tailwindcss";
-
 
 :root {
   /* Light mode defaults */
@@ -40,10 +40,60 @@
   --border-color: 55, 65, 81;
 }
 
+/* Color scheme customization */
+:root[data-color-scheme="blue"] {
+  --primary-blue: 79, 70, 229;
+  --primary-purple: 124, 58, 237;
+  --secondary-blue: 96, 165, 250;
+  --secondary-purple: 167, 139, 250;
+  --accent-color: 59, 130, 246;
+}
+
+:root[data-color-scheme="purple"] {
+  --primary-blue: 124, 58, 237;
+  --primary-purple: 147, 51, 234;
+  --secondary-blue: 167, 139, 250;
+  --secondary-purple: 192, 132, 252;
+  --accent-color: 139, 92, 246;
+}
+
+:root[data-color-scheme="green"] {
+  --primary-blue: 16, 185, 129;
+  --primary-purple: 5, 150, 105;
+  --secondary-blue: 52, 211, 153;
+  --secondary-purple: 110, 231, 183;
+  --accent-color: 34, 197, 94;
+}
+
+:root[data-color-scheme="amber"] {
+  --primary-blue: 245, 158, 11;
+  --primary-purple: 217, 119, 6;
+  --secondary-blue: 251, 191, 36;
+  --secondary-purple: 253, 224, 71;
+  --accent-color: 234, 179, 8;
+}
+
+:root[data-color-scheme="rose"] {
+  --primary-blue: 225, 29, 72;
+  --primary-purple: 244, 63, 94;
+  --secondary-blue: 251, 113, 133;
+  --secondary-purple: 253, 164, 175;
+  --accent-color: 244, 63, 94;
+}
+
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+/* Add smooth theme transition */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *:before,
+html.theme-transition *:after {
+  transition: all 0.2s ease-in-out !important;
+  transition-delay: 0 !important;
 }
 
 body {
@@ -64,6 +114,11 @@ body {
   border-color: rgb(var(--border-color));
 }
 
+/* Improve light mode sidebar text contrast */
+:root:not(.dark) .sidebar-hover-expand {
+  color: rgba(0, 0, 0, 0.87);
+}
+
 /* Card backgrounds */
 .card, [class*="bg-white"] {
   background-color: rgb(var(--card-background)) !important;
@@ -71,48 +126,162 @@ body {
   border-color: rgb(var(--border-color)) !important;
 }
 
-/* Common Components */
-@layer components {
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600;
-  }
-  
-  .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors;
-  }
-  
-  .btn-secondary {
-    @apply bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors;
-  }
-  
-  .btn-outline {
-    @apply border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-medium py-2 px-4 rounded-md transition-colors;
-  }
-  
-  .input-field {
-    @apply rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
-  }
-  
-  .card {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-shadow hover:shadow-lg;
-  }
-  
-  .sidebar-item {
-    @apply flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md transition-colors hover:bg-gray-200 dark:hover:bg-gray-700/50;
-  }
-  
-  .sidebar-item-active {
-    @apply bg-blue-100 dark:bg-indigo-900/30 text-blue-600 dark:text-blue-400;
-  }
+/* Ensure higher contrast text for better light mode readability */
+:root:not(.dark) .card {
+  color: rgba(0, 0, 0, 0.87) !important; /* Near black for better readability */
 }
+
+/* Make all paragraph text in light mode darker for better readability */
+:root:not(.dark) p,
+:root:not(.dark) span:not([class*="text-white"]):not([class*="text-black"]),
+:root:not(.dark) label {
+  color: rgba(0, 0, 0, 0.85) !important; /* Darker text for better visibility */
+}
+
+:root:not(.dark) .text-gray-500, 
+:root:not(.dark) .text-gray-400, 
+:root:not(.dark) .text-gray-600 {
+  color: rgba(0, 0, 0, 0.85) !important; /* Near black for better readability in light mode */
+}
+
+/* Add better contrast for form elements in light mode */
+:root:not(.dark) input, 
+:root:not(.dark) select, 
+:root:not(.dark) textarea {
+  color: rgba(0, 0, 0, 0.87) !important;
+  border-color: rgba(0, 0, 0, 0.23) !important;
+}
+
+:root:not(.dark) button:not(.gradient-button):not([class*="bg-"]) {
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+/* Ensure light mode links have good contrast */
+:root:not(.dark) a:not([class*="text-"]):not(.gradient-text) {
+  color: rgb(var(--accent-color));
+}
+
+/* Ensure error and warning messages have good contrast regardless of theme */
+.text-error, .text-red-500, .text-red-600 {
+  color: rgb(220, 38, 38) !important; /* Always use a visible red */
+}
+
+:root:not(.dark) .text-warning, :root:not(.dark) .text-yellow-500 {
+  color: rgb(180, 83, 9) !important; /* Darker amber for light mode */
+}
+
+:root:not(.dark) .text-success, :root:not(.dark) .text-green-500 {
+  color: rgb(22, 163, 74) !important; /* Darker green for light mode */
+}
+
+/* Improve visibility of headings in light mode */
+:root:not(.dark) h1, 
+:root:not(.dark) h2, 
+:root:not(.dark) h3, 
+:root:not(.dark) h4, 
+:root:not(.dark) h5, 
+:root:not(.dark) h6 {
+  color: rgba(0, 0, 0, 0.87) !important;
+  font-weight: 600;
+}
+
+/* Improve gradient text visibility in light mode */
+:root:not(.dark) .gradient-text {
+  background: linear-gradient(to right, rgba(79, 70, 229, 1), rgba(124, 58, 237, 1));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+}
+
+/* Ensure section headings have proper contrast */
+:root:not(.dark) .font-semibold,
+:root:not(.dark) .font-bold,
+:root:not(.dark) .font-medium {
+  color: rgba(0, 0, 0, 0.95) !important;
+}
+
+/* Fix font color in card headers */
+:root:not(.dark) .card h1,
+:root:not(.dark) .card h2,
+:root:not(.dark) .card h3,
+:root:not(.dark) .card h4,
+:root:not(.dark) .card h5,
+:root:not(.dark) .card h6 {
+  color: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Fix card descriptions and content text in light mode */
+:root:not(.dark) .card p.text-sm.text-gray-600,
+:root:not(.dark) .card p.text-xs.text-gray-500,
+:root:not(.dark) .card p.text-xs.text-gray-400,
+:root:not(.dark) .text-gray-600.dark\:text-gray-400 {
+  color: rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Settings page specific styles */
+:root:not(.dark) .px-6.py-4 p.text-sm.text-gray-600 {
+  color: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Dashboard welcome heading - ensure visibility in both modes */
+.dashboard-welcome {
+  color: white !important; /* Always white since it's on a gradient background */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Add subtle shadow for better readability */
+}
+
+/* Make settings page text darker and more readable in light mode */
+:root:not(.dark) .text-sm,
+:root:not(.dark) .text-xs {
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
+:root:not(.dark) label.block.text-sm.font-medium {
+  color: rgba(0, 0, 0, 0.9) !important;
+  font-weight: 600;
+}
+
+/* Additional heading styles for dashboard */
+:root:not(.dark) .dashboard-section-title {
+  color: rgba(0, 0, 0, 0.87) !important;
+  font-weight: 600;
+}
+
+/* Fix visibility of text on cards with custom backgrounds in light mode */
+:root:not(.dark) .card-on-gradient-bg {
+  color: white !important;
+}
+
+/* Improve prominence of section titles */
+:root:not(.dark) [class*="text-2xl"],
+:root:not(.dark) [class*="text-3xl"],
+:root:not(.dark) [class*="text-4xl"] {
+  color: rgba(0, 0, 0, 0.9) !important;
+  font-weight: 700;
+}
+
+/* Improve contrast for small text/hints in light mode */
+:root:not(.dark) .text-gray-500.text-xs,
+:root:not(.dark) .text-gray-400.text-xs,
+:root:not(.dark) .text-gray-600.text-xs {
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Component styles moved to components.css */
 
 /* Loading Animation */
 .loading-dots {
-  @apply inline-flex items-center gap-1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .loading-dots span {
-  @apply w-2 h-2 rounded-full bg-blue-600 inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: rgb(37, 99, 235);
+  display: inline-block;
   animation: bounce 1.4s infinite ease-in-out both;
 }
 
@@ -157,8 +326,14 @@ body {
 
 /* Sidebar Hover Styles */
 .sidebar-hover-expand {
-  transition: width var(--sidebar-transition-duration) ease-in-out;
+  transition: width var(--sidebar-transition-duration) cubic-bezier(0.25, 1, 0.5, 1);
   will-change: width;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.dark .sidebar-hover-expand {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* Ensure text doesn't wrap in sidebar items when sidebar is expanded */
@@ -171,6 +346,52 @@ body {
 /* Ensure compact sidebar items are centered */
 .sidebar-item.justify-center span:first-child {
   margin: 0 auto;
+}
+
+/* Enhanced sidebar item styles */
+.sidebar-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-item:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: rgba(var(--accent-color), 0.1);
+  transition: width 0.3s ease;
+  z-index: -1;
+}
+
+.sidebar-item:hover:after {
+  width: 100%;
+}
+
+/* Items animation on hover */
+.sidebar-item:hover .sidebar-icon {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+/* Active item glow effect */
+.sidebar-item-active .sidebar-icon {
+  box-shadow: 0 0 12px rgba(var(--primary-blue), 0.3);
+}
+
+.dark .sidebar-item-active .sidebar-icon {
+  box-shadow: 0 0 12px rgba(var(--secondary-blue), 0.3);
+}
+
+/* Reduce animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-item:after,
+  .sidebar-item:hover .sidebar-icon,
+  .sidebar-hover-expand {
+    transition: none;
+  }
 }
 
 /* Enhanced custom scrollbar styling */
@@ -216,7 +437,8 @@ body {
 
 .sidebar-resize-handle:hover,
 .sidebar-resize-handle.active {
-  background-color: rgba(var(--accent-color), 0.3);
+  background-color: rgba(var(--accent-color), 0.4);
+  box-shadow: 0 0 8px rgba(var(--accent-color), 0.3);
 }
 
 /* Pin button styles */
@@ -225,17 +447,22 @@ body {
   top: 14px;
   right: 10px;
   z-index: 40;
-  opacity: 0.5;
-  transition: opacity 0.2s, transform 0.2s;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s, background-color 0.2s;
+  padding: 5px;
+  border-radius: 6px;
+  background-color: transparent;
 }
 
 .pin-button:hover {
   opacity: 1;
+  background-color: rgba(var(--accent-color), 0.1);
 }
 
 .pin-button.pinned {
   opacity: 1;
   color: rgb(var(--primary-blue));
+  background-color: rgba(var(--primary-blue), 0.1);
 }
 
 .pin-button.pinned svg {
@@ -247,31 +474,36 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
+  border-radius: 8px;
+  background-color: rgba(var(--primary-blue), 0.1);
+  color: rgb(var(--primary-blue));
+  transition: all 0.2s ease;
 }
 
 /* Dashboard list hover effects */
 .dashboard-item-hover {
-  @apply transition-all duration-200;
+  transition-property: all;
+  transition-duration: 200ms;
 }
 
 .dashboard-item-hover:hover {
-  @apply bg-gradient-to-r;
+  background: linear-gradient(to right, transparent, transparent);
   background-color: transparent !important;
 }
 
 /* Light mode hover effect */
 .light .dashboard-item-hover:hover {
-  @apply from-blue-50/80 to-purple-50/60;
-  @apply border-l-2 border-blue-400;
+  background: linear-gradient(to right, rgba(239, 246, 255, 0.8), rgba(243, 244, 246, 0.6));
+  border-left: 2px solid #60A5FA;
 }
 
 /* Dark mode hover effect */
 .dark .dashboard-item-hover:hover {
-  @apply from-blue-900/20 to-purple-900/10;
-  @apply border-l-2 border-blue-500;
+  background: linear-gradient(to right, rgba(30, 58, 138, 0.2), rgba(109, 40, 217, 0.1));
+  border-left: 2px solid #3B82F6;
 }
 
 /* Add this to the bottom of the file */
@@ -282,3 +514,6 @@ html.no-animations * {
   transition-delay: 0s !important;
   animation-delay: 0s !important;
 }
+
+/* Import component styles */
+@import "./components.css";
