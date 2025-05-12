@@ -71,6 +71,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const router = useRouter();
+
   const handleTitleClick = (e: React.MouseEvent) => {
     if (titleHref) {
       e.preventDefault();
@@ -282,7 +283,8 @@ export default function DashboardLayout({
   const handleCloseProjectModal = () => {
     setIsProjectModalOpen(false);
   };
-    const handleCreateProject = async (projectData: ProjectData) => {
+  
+  const handleCreateProject = async (projectData: ProjectData) => {
     if (!user) return Promise.reject(new Error('You must be logged in to create a project'));
     
     try {
@@ -313,7 +315,8 @@ export default function DashboardLayout({
         />
       )}
 
-      {/* Sidebar */}      <div 
+      {/* Sidebar */}
+      <div 
         ref={sidebarRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -345,106 +348,113 @@ export default function DashboardLayout({
           title={sidebarState.isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
         >
           <HiOutlinePaperClip className="w-5 h-5" />
-        </button>          <div className="h-full flex flex-col">
-            {/* No SME.AI logo at the top as requested */}
-            <div className="flex items-center justify-between h-14 px-4">
-              <button 
-                onClick={toggleMobileSidebar} 
-                className="lg:hidden p-1 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
-              >
-                <HiOutlineX className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto py-5 px-3 custom-scrollbar">            <SidebarItem
+        </button>
+        
+        <div className="h-full flex flex-col">
+          {/* No SME.AI logo at the top as requested */}
+          <div className="flex items-center justify-between h-14 px-4">
+            <button 
+              onClick={toggleMobileSidebar} 
+              className="lg:hidden p-1 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
+            >
+              <HiOutlineX className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto py-5 px-3 custom-scrollbar">
+            <SidebarItem
               icon={<HiOutlineHome />}
               label="Dashboard"
               href="/dashboard"
               isActive={pathname === '/dashboard'}
-              compact={false} // Always show label
+              compact={isEffectivelyClosed}
             />
 
             <div className="my-6 border-b dark:border-gray-700 border-gray-200 opacity-70"></div>
-              <CollapsibleSection 
-                title="Projects" 
-                defaultOpen={true} 
-                compact={isEffectivelyClosed} 
-                titleHref="/dashboard/projects"
-              >
-                <div className="space-y-1">
-                  {projects.map(project => (
-                    <SidebarItem
-                      key={project.projectId}
-                      icon={<HiOutlineFolder />}
-                      label={project.name}
-                      href={`/dashboard/projects/${project.projectId}`}
-                      isActive={pathname === `/dashboard/projects/${project.projectId}`}
-                      compact={isEffectivelyClosed}
-                    />
-                  ))}                  <SidebarItem
-                    icon={<HiOutlinePlus />}
-                    label="New Project"
-                    onClick={handleOpenProjectModal}
-                    compact={false} // Always show label
+            <CollapsibleSection 
+              title="Projects" 
+              defaultOpen={true} 
+              compact={isEffectivelyClosed} 
+              titleHref="/dashboard/projects"
+            >
+              <div className="space-y-1">
+                {projects.map(project => (
+                  <SidebarItem
+                    key={project.projectId}
+                    icon={<HiOutlineFolder />}
+                    label={project.name}
+                    href={`/dashboard/projects/${project.projectId}`}
+                    isActive={pathname === `/dashboard/projects/${project.projectId}`}
+                    compact={isEffectivelyClosed}
                   />
-                </div>
-              </CollapsibleSection>
+                ))}
+                <SidebarItem
+                  icon={<HiOutlinePlus />}
+                  label="New Project"
+                  onClick={handleOpenProjectModal}
+                  compact={isEffectivelyClosed}
+                />
+              </div>
+            </CollapsibleSection>
 
-              <CollapsibleSection 
-                title="Chats" 
-                defaultOpen={true} 
-                compact={isEffectivelyClosed}
-                titleHref="/dashboard/chats"
-              >
-                <div className="space-y-1">
-                  {recentChats.map(chat => (
-                    <SidebarItem
-                      key={chat.chatId}
-                      icon={<HiOutlineChat />}
-                      label={chat.title}
-                      href={`/dashboard/chats/${chat.chatId}`}
-                      isActive={pathname === `/dashboard/chats/${chat.chatId}`}
-                      compact={isEffectivelyClosed}
-                    />
-                  ))}                  <SidebarItem
-                    icon={<HiOutlinePlus />}
-                    label="New Chat"
-                    href="/dashboard/chats/new"
-                    compact={false} // Always show label
+            <CollapsibleSection 
+              title="Chats" 
+              defaultOpen={true} 
+              compact={isEffectivelyClosed}
+              titleHref="/dashboard/chats"
+            >
+              <div className="space-y-1">
+                {recentChats.map(chat => (
+                  <SidebarItem
+                    key={chat.chatId}
+                    icon={<HiOutlineChat />}
+                    label={chat.title}
+                    href={`/dashboard/chats/${chat.chatId}`}
+                    isActive={pathname === `/dashboard/chats/${chat.chatId}`}
+                    compact={isEffectivelyClosed}
                   />
-                </div>
-              </CollapsibleSection>
+                ))}
+                <SidebarItem
+                  icon={<HiOutlinePlus />}
+                  label="New Chat"
+                  href="/dashboard/chats/new"
+                  compact={isEffectivelyClosed}
+                />
+              </div>
+            </CollapsibleSection>
 
-              <CollapsibleSection title="Cloud Connections" compact={isEffectivelyClosed}>
-                <div className="space-y-1">
-                  <SidebarItem
-                    icon={<HiOutlineCloud />}
-                    label="Google Drive"
-                    href="/dashboard/cloud/google-drive"
-                    isActive={pathname === '/dashboard/cloud/google-drive'}
-                    compact={isEffectivelyClosed}
-                  />
-                  <SidebarItem
-                    icon={<HiOutlineCloud />}
-                    label="OneDrive"
-                    href="/dashboard/cloud/onedrive"
-                    isActive={pathname === '/dashboard/cloud/onedrive'}
-                    compact={isEffectivelyClosed}
-                  />
-                  <SidebarItem
-                    icon={<HiOutlineCloud />}
-                    label="Dropbox"
-                    href="/dashboard/cloud/dropbox"
-                    isActive={pathname === '/dashboard/cloud/dropbox'}
-                    compact={isEffectivelyClosed}
-                  />                  <SidebarItem
-                    icon={<HiOutlinePlus />}
-                    label="Connect New"
-                    href="/dashboard/cloud/connect"
-                    compact={false} // Always show label
-                  /></div>
-              </CollapsibleSection>
-            </div>
+            <CollapsibleSection title="Cloud Connections" compact={isEffectivelyClosed}>
+              <div className="space-y-1">
+                <SidebarItem
+                  icon={<HiOutlineCloud />}
+                  label="Google Drive"
+                  href="/dashboard/cloud/google-drive"
+                  isActive={pathname === '/dashboard/cloud/google-drive'}
+                  compact={isEffectivelyClosed}
+                />
+                <SidebarItem
+                  icon={<HiOutlineCloud />}
+                  label="OneDrive"
+                  href="/dashboard/cloud/onedrive"
+                  isActive={pathname === '/dashboard/cloud/onedrive'}
+                  compact={isEffectivelyClosed}
+                />
+                <SidebarItem
+                  icon={<HiOutlineCloud />}
+                  label="Dropbox"
+                  href="/dashboard/cloud/dropbox"
+                  isActive={pathname === '/dashboard/cloud/dropbox'}
+                  compact={isEffectivelyClosed}
+                />
+                <SidebarItem
+                  icon={<HiOutlinePlus />}
+                  label="Connect New"
+                  href="/dashboard/cloud/connect"
+                  compact={isEffectivelyClosed}
+                />
+              </div>
+            </CollapsibleSection>
           </div>
+          
           <div className="p-4">
             <div className="my-1 border-b dark:border-gray-700 border-gray-200 opacity-70 mb-6"></div>
             <div className={`flex items-center mb-4 ${isEffectivelyClosed ? 'justify-center' : ''}`}>
@@ -457,7 +467,9 @@ export default function DashboardLayout({
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{userData?.email}</p>
                 </div>
               )}
-            </div>            <div className="space-y-1">
+            </div>
+
+            <div className="space-y-1">
               <SidebarItem
                 icon={<HiOutlineUser />}
                 label="Profile"
@@ -481,10 +493,13 @@ export default function DashboardLayout({
             </div>
           </div>
         </div>
+      </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden transition-all duration-300" 
-           style={{ marginLeft: isEffectivelyClosed ? '4rem' : `${sidebarState.width}px` }}>
+      <div 
+        className="flex-1 flex flex-col overflow-hidden transition-all duration-300" 
+        style={{ marginLeft: isEffectivelyClosed ? '4rem' : `${sidebarState.width}px` }}
+      >
         {/* Header for mobile */}
         <div className="lg:hidden flex items-center px-4 h-14 border-b border-gray-200 dark:border-gray-700">
           <button 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ThemeToggle } from '@/components/ui';
+import { EnhancedThemeToggle } from '@/components/ui';
 
 export default function Home() {
   return (
@@ -24,9 +24,8 @@ export default function Home() {
             <Link href="#pricing" className="text-sm font-medium hover:text-blue-600 transition-colors">
               Pricing
             </Link>
-          </nav>
-          <div className="flex items-center space-x-4">
-            <ThemeToggle variant="icon" />
+          </nav>          <div className="flex items-center space-x-4">
+            <EnhancedThemeToggle size="sm" />
             <Link href="/login" className="text-sm font-medium hover:text-blue-600 transition-colors">
               Sign In
             </Link>

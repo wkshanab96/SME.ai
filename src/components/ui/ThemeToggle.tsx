@@ -24,24 +24,29 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     return <div className={className} style={{ width: variant === 'icon' ? '40px' : '100px', height: '40px' }} />;
   }
   
-  // Icon variant - just a sun/moon toggle
+  // Icon variant - enhanced sun/moon toggle with animation
   if (variant === 'icon') {
     return (
       <button
         onClick={toggleTheme}
-        className={`p-2 rounded-md transition-colors ${className} ${
+        className={`p-2 rounded-md transition-all relative overflow-hidden ${className} ${
           resolvedTheme === 'dark' 
-            ? 'text-yellow-300 hover:bg-gray-800' 
+            ? 'text-yellow-300 hover:bg-gray-800 shadow-inner' 
             : 'text-gray-700 hover:bg-gray-200'
         }`}
         aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
         title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
       >
-        {resolvedTheme === 'dark' ? (
-          <SunIcon className="w-5 h-5" />
-        ) : (
+        <div className={`transition-all duration-300 absolute inset-0 ${
+          resolvedTheme === 'dark' ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+        }`}>
           <MoonIcon className="w-5 h-5" />
-        )}
+        </div>
+        <div className={`transition-all duration-300 absolute inset-0 ${
+          resolvedTheme === 'dark' ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
+        }`}>
+          <SunIcon className="w-5 h-5" />
+        </div>
       </button>
     );
   }

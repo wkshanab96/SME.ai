@@ -8,4 +8,6 @@ export * from './Modal';
 export * from './Toast';
 export * from './ToastContainer';
 export * from './Loading';
-export * from './ThemeToggle';
+// Re-export EnhancedThemeToggle as ThemeToggle for backward compatibility
+export { EnhancedThemeToggle as ThemeToggle } from './EnhancedThemeToggle';
+export * from './EnhancedThemeToggle';
