@@ -41,10 +41,16 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   icon, label, href, isActive, onClick, compact 
 }) => {
   const content = (
-    <div className={`sidebar-item ${isActive ? 'sidebar-item-active' : ''} ${compact ? 'justify-center' : ''}`}>
-      <span className="sidebar-icon">{icon}</span>
+    <div className={`sidebar-item group flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 
+      ${isActive 
+        ? 'sidebar-item-active bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium' 
+        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/50'
+      } ${compact ? 'justify-center' : ''}`}>
+      <span className={`sidebar-icon flex-shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>
+        {icon}
+      </span>
       {!compact && (
-        <span className="whitespace-nowrap overflow-hidden text-ellipsis transition-all duration-200">
+        <span className="ml-3 whitespace-nowrap overflow-hidden text-ellipsis transition-all duration-200">
           {label}
         </span>
       )}
@@ -52,10 +58,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   );
 
   if (href) {
-    return <Link href={href} className="block">{content}</Link>;
+    return <Link href={href} className="block w-full mb-1">{content}</Link>;
   }
   
-  return <button className="w-full text-left" onClick={onClick}>{content}</button>;
+  return <button className="w-full text-left mb-1" onClick={onClick}>{content}</button>;
 };
 
 interface CollapsibleSectionProps {
@@ -81,11 +87,11 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   };
   
   return (
-    <div className="collapsible-section">
-      <div className="collapsible-section-title">
+    <div className="collapsible-section mb-4">
+      <div className="collapsible-section-title flex items-center py-2 px-2 text-sm font-medium text-gray-800 dark:text-gray-200 uppercase tracking-wider">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex-shrink-0 mr-2 transition-transform duration-200"
+          className="flex-shrink-0 mr-2 transition-transform duration-300 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
           style={{ transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
           aria-label={isOpen ? 'Collapse section' : 'Expand section'}
         >
@@ -95,20 +101,24 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         {titleHref ? (
           <Link 
             href={titleHref} 
-            className="flex-grow hover:text-blue-500 transition-colors"
+            className="flex-grow hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
           >
             {title}
           </Link>
         ) : (
           <button
-            className="flex-grow hover:text-blue-500 transition-colors text-left"
+            className="flex-grow hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-left font-medium"
             onClick={() => setIsOpen(!isOpen)}
           >
             {title}
           </button>
         )}
       </div>
-      {isOpen && <div className="collapsible-section-content">{children}</div>}
+      <div 
+        className={`collapsible-section-content overflow-hidden transition-all duration-300 pl-2 ${isOpen ? 'max-h-96' : 'max-h-0'}`}
+      >
+        {children}
+      </div>
     </div>
   );
 };
@@ -313,7 +323,8 @@ export default function DashboardLayout({
         />
       )}
 
-      {/* Sidebar */}      <div 
+      {/* Sidebar */}
+      <div 
         ref={sidebarRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -345,9 +356,24 @@ export default function DashboardLayout({
           title={sidebarState.isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
         >
           <HiOutlinePaperClip className="w-5 h-5" />
-        </button>          <div className="h-full flex flex-col">
-            {/* No SME.AI logo at the top as requested */}
-            <div className="flex items-center justify-between h-14 px-4">
+        </button>
+        <div className="h-full flex flex-col">
+            {/* Enhanced sidebar header with logo */}
+            <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700/50">
+              <div className="flex items-center">
+                <Link href="/dashboard" className={`flex items-center ${isEffectivelyClosed ? 'justify-center w-full' : ''}`}>
+                  <div className="flex items-center">
+                    <div className="h-8 w-8 rounded-md bg-gradient-to-r from-primary-blue to-primary-purple flex items-center justify-center text-white shadow-md">
+                      <span className="font-bold text-lg">S</span>
+                    </div>
+                    {!isEffectivelyClosed && (
+                      <span className="ml-2 font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary-blue to-primary-purple">
+                        SME.AI
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              </div>
               <button 
                 onClick={toggleMobileSidebar} 
                 className="lg:hidden p-1 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
@@ -355,22 +381,28 @@ export default function DashboardLayout({
                 <HiOutlineX className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto py-5 px-3 custom-scrollbar">            <SidebarItem
-              icon={<HiOutlineHome />}
-              label="Dashboard"
-              href="/dashboard"
-              isActive={pathname === '/dashboard'}
-              compact={false} // Always show label
-            />
+            <div className="flex-1 overflow-y-auto py-5 px-4 custom-scrollbar">
+              {/* Main navigation */}
+              <div className="mb-6">
+                <SidebarItem
+                  icon={<HiOutlineHome className="w-5 h-5" />}
+                  label="Dashboard"
+                  href="/dashboard"
+                  isActive={pathname === '/dashboard'}
+                  compact={isEffectivelyClosed}
+                />
+              </div>
 
-            <div className="my-6 border-b dark:border-gray-700 border-gray-200 opacity-70"></div>
+              <div className="my-4 border-b dark:border-gray-700/50 border-gray-200 opacity-70"></div>
+
+              {/* Projects section */}
               <CollapsibleSection 
                 title="Projects" 
                 defaultOpen={true} 
                 compact={isEffectivelyClosed} 
                 titleHref="/dashboard/projects"
               >
-                <div className="space-y-1">
+                <div className="space-y-1 mt-1">
                   {projects.map(project => (
                     <SidebarItem
                       key={project.projectId}
@@ -380,12 +412,15 @@ export default function DashboardLayout({
                       isActive={pathname === `/dashboard/projects/${project.projectId}`}
                       compact={isEffectivelyClosed}
                     />
-                  ))}                  <SidebarItem
-                    icon={<HiOutlinePlus />}
-                    label="New Project"
+                  ))}
+                  <button 
                     onClick={handleOpenProjectModal}
-                    compact={false} // Always show label
-                  />
+                    className="w-full mt-2 flex items-center px-3 py-2 text-sm rounded-lg transition-colors 
+                      text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 group"
+                  >
+                    <HiOutlinePlus className="w-5 h-5 mr-3 text-blue-600 dark:text-blue-400" />
+                    <span>New Project</span>
+                  </button>
                 </div>
               </CollapsibleSection>
 
@@ -405,12 +440,15 @@ export default function DashboardLayout({
                       isActive={pathname === `/dashboard/chats/${chat.chatId}`}
                       compact={isEffectivelyClosed}
                     />
-                  ))}                  <SidebarItem
-                    icon={<HiOutlinePlus />}
-                    label="New Chat"
-                    href="/dashboard/chats/new"
-                    compact={false} // Always show label
-                  />
+                  ))}
+                  <button 
+                    onClick={() => router.push('/dashboard/chats/new')}
+                    className="w-full mt-2 flex items-center px-3 py-2 text-sm rounded-lg transition-colors 
+                      text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 group"
+                  >
+                    <HiOutlinePlus className="w-5 h-5 mr-3 text-blue-600 dark:text-blue-400" />
+                    <span>New Chat</span>
+                  </button>
                 </div>
               </CollapsibleSection>
 
@@ -436,28 +474,33 @@ export default function DashboardLayout({
                     href="/dashboard/cloud/dropbox"
                     isActive={pathname === '/dashboard/cloud/dropbox'}
                     compact={isEffectivelyClosed}
-                  />                  <SidebarItem
-                    icon={<HiOutlinePlus />}
-                    label="Connect New"
-                    href="/dashboard/cloud/connect"
-                    compact={false} // Always show label
-                  /></div>
+                  />
+                  <button 
+                    onClick={() => router.push('/dashboard/cloud/connect')}
+                    className="w-full mt-2 flex items-center px-3 py-2 text-sm rounded-lg transition-colors 
+                      text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 group"
+                  >
+                    <HiOutlinePlus className="w-5 h-5 mr-3 text-blue-600 dark:text-blue-400" />
+                    <span>Connect New</span>
+                  </button>
+                </div>
               </CollapsibleSection>
             </div>
           </div>
-          <div className="p-4">
-            <div className="my-1 border-b dark:border-gray-700 border-gray-200 opacity-70 mb-6"></div>
-            <div className={`flex items-center mb-4 ${isEffectivelyClosed ? 'justify-center' : ''}`}>
-              <div className="w-9 h-9 rounded-full bg-gradient-to-r from-primary-blue to-primary-purple flex items-center justify-center text-white shadow-md">
+          <div className="mt-auto pt-2">
+            <div className="my-1 border-b dark:border-gray-700/50 border-gray-200 opacity-70 mb-4"></div>
+            <div className={`flex items-center mb-4 px-4 ${isEffectivelyClosed ? 'justify-center' : ''}`}>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-blue to-primary-purple flex items-center justify-center text-white shadow-lg ring-2 ring-white dark:ring-gray-800">
                 {userData?.displayName ? userData.displayName[0].toUpperCase() : 'U'}
               </div>
               {!isEffectivelyClosed && (
                 <div className="ml-3 flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{userData?.displayName || 'User'}</p>
+                  <p className="text-sm font-semibold truncate dark:text-gray-200">{userData?.displayName || 'User'}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{userData?.email}</p>
                 </div>
               )}
-            </div>            <div className="space-y-1">
+            </div>
+            <div className="space-y-1 px-2 mb-4">
               <SidebarItem
                 icon={<HiOutlineUser />}
                 label="Profile"
@@ -478,6 +521,11 @@ export default function DashboardLayout({
                 onClick={handleSignOut}
                 compact={isEffectivelyClosed}
               />
+              
+              {/* Theme toggle */}
+              <div className={`mt-4 px-2 ${isEffectivelyClosed ? 'flex justify-center' : ''}`}>
+                <EnhancedThemeToggle size="sm" className="mx-auto" />
+              </div>
             </div>
           </div>
         </div>
