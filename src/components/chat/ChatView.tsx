@@ -37,9 +37,9 @@ const chatSuggestions = [
   {
     title: 'Documentation Help',
     items: [
-      { content: 'Create a technical specification template for a pump system', icon: '📝' },
+      { content: 'Create a technical specification template for a pump system', icon: '📄' },
       { content: 'Help me draft safety procedures for chemical handling', icon: '🧪' },
-      { content: 'Generate an equipment maintenance checklist', icon: '📋' }
+      { content: 'Generate an equipment maintenance checklist', icon: '✅' }
     ]
   },
   {
@@ -47,7 +47,7 @@ const chatSuggestions = [
     items: [
       { content: 'What are common risks in engineering projects?', icon: '⚠️' },
       { content: 'How to estimate project timeline for mechanical installation?', icon: '⏱️' },
-      { content: 'Best practices for managing contractor relationships', icon: '🤝' }
+      { content: 'Best practices for managing contractor relationships', icon: '👥' }
     ]
   }
 ];
@@ -193,16 +193,18 @@ const ChatView: React.FC<ChatViewProps> = ({
       content,
       role: 'user',
       timestamp,
-      isNew: true
+      isNew: messages.length === 0 // Only mark as new for the first message
     };
     
-    // Only trigger input animation if this is the first message (empty state to conversation state)
+    // Animation for transitioning from empty state to conversation
     if (messages.length === 0) {
       setShowInputAnimation(true);
+      // Add message immediately for better synchronization
+      setMessages(prev => [...prev, userMessage]);
+    } else {
+      // Add the message immediately if not the first message
+      setMessages(prev => [...prev, userMessage]);
     }
-    
-    // Add the user message
-    setMessages(prev => [...prev, userMessage]);
     
     // Show loading state
     setIsLoading(true);
@@ -283,13 +285,13 @@ const ChatView: React.FC<ChatViewProps> = ({
       // Save the AI response to the database
       const savedAiMessage = await ChatService.addMessage(activeChatId, aiMessageData);
       
-      // Add AI response to the chat with isNew flag
+      // Add AI response to the chat with isNew flag only for the first message
       const aiMessage: ChatMessage = {
         id: savedAiMessage.id,
         content: responseContent,
         role: 'ai',
         timestamp: new Date(),
-        isNew: true
+        isNew: messages.length <= 1 // Only animate for the first conversation
       };
       
       // Update messages, replacing the temp user message with the saved one
@@ -298,17 +300,20 @@ const ChatView: React.FC<ChatViewProps> = ({
           .concat([aiMessage])
       );
       
-      // Reset isNew flag after animation completes
-      setTimeout(() => {
-        setMessages(prev => 
-          prev.map(msg => 
-            (msg.id === savedUserMessage.id || msg.id === savedAiMessage.id) 
-              ? { ...msg, isNew: false } 
-              : msg
-          )
-        );
-        setShowInputAnimation(false);
-      }, 1000);
+      // Reset animations only for the first message exchange
+      if (messages.length <= 1) {
+        setTimeout(() => {
+          setMessages(prev => 
+            prev.map(msg => 
+              (msg.id === savedUserMessage.id || msg.id === savedAiMessage.id) 
+                ? { ...msg, isNew: false } 
+                : msg
+            )
+          );
+          // Reset animation state to complete the transition
+          setShowInputAnimation(false);
+        }, 1000);
+      }
       
     } catch (error) {
       console.error('Error sending message:', error);
@@ -352,7 +357,7 @@ const ChatView: React.FC<ChatViewProps> = ({
         <div className="absolute inset-0 flex flex-col items-center justify-center max-w-6xl mx-auto px-4 md:px-8">
           <div className="text-center mb-10">
             <div className="flex items-center justify-center mb-4">
-              <div className="h-16 w-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-2">
+              <div className="h-16 w-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-2 hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-pulse-slow">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
@@ -372,7 +377,7 @@ const ChatView: React.FC<ChatViewProps> = ({
           </div>
           
           {/* Input box for empty state - centered and with max width */}
-          <div className={`w-full max-w-xl mx-auto ${showInputAnimation ? 'transform translate-y-10 opacity-0 transition-all duration-300' : ''}`}>
+          <div className={`w-full max-w-xl mx-auto ${showInputAnimation ? 'transform translate-y-[-20px] opacity-0 transition-all duration-500 ease-out' : ''}`}>
             <ChatInput
               onSendMessage={handleSendMessage}
               disabled={isLoading}
@@ -411,7 +416,7 @@ const ChatView: React.FC<ChatViewProps> = ({
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {chatSuggestions.map((category, idx) => (
-                    <Card key={idx} className="p-5 border-t-4 hover:shadow-md transition-shadow" style={{
+                    <Card key={idx} className="p-5 border-t-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1" style={{
                       borderTopColor: idx === 0 ? '#3B82F6' : idx === 1 ? '#8B5CF6' : '#EC4899'
                     }}>
                       <h3 className="text-lg font-semibold mb-3" style={{ 
@@ -424,9 +429,9 @@ const ChatView: React.FC<ChatViewProps> = ({
                           <button 
                             key={i}
                             onClick={() => handleSendMessage(item.content)}
-                            className="w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+                            className="w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex items-center border border-transparent hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm transform hover:scale-[1.02]"
                           >
-                            <span className="mr-3 text-xl">{item.icon}</span>
+                            <span className="mr-3 text-xl transform transition-transform duration-200 group-hover:scale-110">{item.icon}</span>
                             <span className="text-sm leading-tight" style={{ 
                               color: resolvedTheme === 'dark' ? 'rgb(209, 213, 219)' : 'rgb(55, 65, 81)'
                             }}>

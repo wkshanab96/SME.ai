@@ -218,11 +218,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
               rows={1}
             />
             
-            {/* Send button */}
+            {/* Enhanced send button with gradient */}
             <button
               type="submit"
               disabled={!message.trim() || disabled}
-              className="absolute right-2 bottom-2.5 rounded-full p-1.5 text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:opacity-50 transition-colors"
+              className="absolute right-2 bottom-2.5 rounded-full p-1.5 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:transform-none"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
