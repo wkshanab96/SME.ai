@@ -18,6 +18,7 @@ import {
   HiOutlinePlus, HiOutlineHome, HiOutlineX,
   HiOutlineMenuAlt2, HiOutlinePaperClip
 } from 'react-icons/hi';
+import { HiOutlinePencilAlt } from 'react-icons/hi'; // Icon for AI Drawing
 
 // Add interface for hover state management
 interface SidebarState {
@@ -424,11 +425,25 @@ export default function DashboardLayout({
                       {!isEffectivelyClosed && <span>New Chat</span>}
                     </Link>
                   </div>
+                </div>              </CollapsibleSection>
+
+              {/* AI Drawing Tab */}
+              <Link
+                href="/dashboard/ai-drawing"
+                className={`flex items-center text-sm py-1.5 px-2 rounded-lg ${
+                  pathname === '/dashboard/ai-drawing' 
+                    ? 'bg-gray-200 dark:bg-gray-700 text-primary-blue dark:text-primary-purple' 
+                    : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                } ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors mb-4`}
+              >
+                <div className={`sidebar-icon ${!isEffectivelyClosed ? 'mr-2' : ''}`}>
+                  <HiOutlinePencilAlt className="w-4 h-4" />
                 </div>
-              </CollapsibleSection>
+                {!isEffectivelyClosed && <span>AI Drawing</span>}
+              </Link>
 
               <CollapsibleSection title="Cloud Connections" compact={isEffectivelyClosed}>
-                <div className="space-y-1">                  <Link 
+                <div className="space-y-1"><Link 
                     href="/dashboard/cloud/google-drive"
                     className={`flex items-center text-sm py-1.5 px-2 rounded-lg ${
                       pathname === '/dashboard/cloud/google-drive' 
