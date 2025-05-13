@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { useTheme } from '@/lib/theme-context';
 
 interface ChatLayoutProps {
@@ -24,25 +24,23 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
     <div className="flex flex-col h-full">
       {/* Messages container with consistent width */}
       <div className="flex-grow overflow-y-auto pt-4 pb-36 custom-scrollbar">
-        <div className="flex flex-col max-w-4xl w-full mx-auto px-4 ">
-          <div className="flex flex-col w-full ">
+        <div className="flex flex-col max-w-4xl w-full mx-auto px-4">
+          <div className="flex flex-col w-full">
             {/* Messages will be rendered here */}
             {children}
           </div>
         </div>
       </div>
       
-      {/* Input area with fixed position and consistent alignment */}
-      <div
- className="bottom-0 left-0 right-0 pb-6 pt-10 z-10"
-      >
+      {/* Input area with fixed position - only animated during initial transition */}
+      <div className="bottom-0 left-0 right-0 pb-6 pt-10 z-10">
         <div className="max-w-4xl mx-auto px-4 w-full">
           <div
- className={`${
+            className={`${
               showInputAnimation 
-                ? 'transform translate-y-10 opacity-0' 
+                ? 'transform translate-y-[-20px] opacity-0 transition-all duration-500 ease-out' 
                 : 'transform translate-y-0 opacity-100'
-            } transition-all duration-300`}
+            }`}
           >
             {/* Chat input will be rendered here */}
             {inputComponent}

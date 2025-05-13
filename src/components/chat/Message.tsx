@@ -21,8 +21,7 @@ const Message: React.FC<MessageProps> = ({
   const { resolvedTheme } = useTheme();
   const isAI = role === 'ai';
   const [animated, setAnimated] = useState(false);
-  
-  // Effect to handle animation timing
+    // Effect to handle animation timing
   useEffect(() => {
     if (isNew) {
       // Allow DOM to paint the initial state before adding animation class
@@ -42,20 +41,32 @@ const Message: React.FC<MessageProps> = ({
       }).format(timestamp)
     : '';
   
-  // Animation classes - message comes from below
+  // Enhanced animation classes - message comes from below only for the first message
   const animationClass = isNew 
     ? `${animated ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'} transition-all duration-500 ease-out`
     : '';
+  
+  // AI message background that matches page background
+  const getAIMessageStyle = () => {
+    return resolvedTheme === 'dark' 
+      ? 'bg-gray-800/70 border border-gray-700 text-gray-200' 
+      : 'bg-white/90 border border-gray-200 shadow-sm text-gray-800';
+  };
+  
+  // User message style with gradient
+  const getUserMessageStyle = () => {
+    return 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md';
+  };
   
   return (
     <div className={`w-full flex ${isAI ? 'justify-start' : 'justify-end'} ${animationClass} mb-4`}>
       <div className={`${isAI ? 'max-w-[70%]' : 'max-w-[70%]'}`}>
         {/* Message bubble with proper text wrapping */}
         <div 
-          className={`px-4 py-2.5 rounded-xl break-words overflow-hidden custom-scrollbar ${
+          className={`px-4 py-2.5 rounded-xl break-words overflow-hidden custom-scrollbar backdrop-blur-sm ${
             isAI 
-              ? 'bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200' 
-              : 'bg-blue-600 text-white'
+              ? getAIMessageStyle()
+              : getUserMessageStyle()
           }`}
         >
           {isLoading ? (
