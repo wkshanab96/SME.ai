@@ -90,53 +90,79 @@
 .sidebar-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   transition: all 0.2s ease;
   margin-bottom: 0.25rem;
-  border-left: 3px solid transparent;
+  border: 1px solid transparent;
   position: relative;
   overflow: hidden;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(147, 51, 234, 0.05));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  border-radius: 0.75rem;
 }
 
 .sidebar-item:hover {
-  background-color: rgba(229, 231, 235, 0.6);
-  transform: translateX(2px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, rgba(229, 231, 235, 0.8), rgba(243, 244, 246, 0.6));
+  transform: translateX(3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+.sidebar-item:hover::before {
+  opacity: 1;
 }
 
 .dark .sidebar-item:hover {
-  background-color: rgba(55, 65, 81, 0.5);
-  transform: translateX(2px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, rgba(55, 65, 81, 0.7), rgba(75, 85, 99, 0.5));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(147, 51, 234, 0.2);
 }
 
 .sidebar-item-active {
-  background-color: rgba(219, 234, 254, 0.8);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(147, 51, 234, 0.1)) !important;
   color: rgb(var(--primary-blue));
-  border-left: 3px solid rgb(var(--primary-blue));
+  border: 1px solid rgba(37, 99, 235, 0.3);
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.2);
+  transform: translateX(6px);
+  position: relative;
+}
+
+.sidebar-item-active::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 20%;
+  bottom: 20%;
+  width: 4px;
+  background: linear-gradient(to bottom, rgb(var(--primary-blue)), rgb(var(--primary-purple)));
+  border-radius: 0 4px 4px 0;
 }
 
 .dark .sidebar-item-active {
-  background-color: rgba(49, 46, 129, 0.3);
-  color: rgb(var(--secondary-blue));
-  border-left: 3px solid rgb(var(--secondary-blue));
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(168, 85, 247, 0.15)) !important;
+  color: rgb(var(--primary-purple));
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  box-shadow: 0 4px 16px rgba(147, 51, 234, 0.3);
 }
 
-.sidebar-item-active .sidebar-icon {
-  background-color: rgba(var(--primary-blue), 0.2);
-  color: rgb(var(--primary-blue));
-}
-
-.dark .sidebar-item-active .sidebar-icon {
-  background-color: rgba(var(--secondary-blue), 0.2);
-  color: rgb(var(--secondary-blue));
+.dark .sidebar-item-active::after {
+  background: linear-gradient(to bottom, rgb(var(--primary-purple)), rgb(var(--secondary-purple)));
 }
 
 /* Improved Collapsible Section Styles */

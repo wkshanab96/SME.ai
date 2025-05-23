@@ -16,7 +16,8 @@ import {
   HiOutlineChat, HiOutlineFolder, HiOutlineCloud,
   HiOutlineCog, HiOutlineLogout, HiOutlineUser,
   HiOutlinePlus, HiOutlineHome, HiOutlineX,
-  HiOutlineMenuAlt2, HiOutlinePaperClip
+  HiOutlineMenuAlt2, HiOutlinePaperClip,
+  HiOutlineDocumentText // Icon for Documents
 } from 'react-icons/hi';
 import { HiOutlinePencilAlt } from 'react-icons/hi'; // Icon for AI Drawing
 
@@ -42,10 +43,20 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   icon, label, href, isActive, onClick, compact 
 }) => {
   const content = (
-    <div className={`sidebar-item ${isActive ? 'sidebar-item-active' : ''} ${compact ? 'justify-center' : ''}`}>
-      <div className={`sidebar-icon ${!compact ? 'mr-2' : ''}`}>{icon}</div>
+    <div className={`sidebar-item group flex items-center ${isActive ? 'sidebar-item-active' : ''} ${compact ? 'justify-center' : ''}`}>
+      <div className={`sidebar-icon flex-shrink-0 p-1.5 rounded-lg transition-all duration-200 ${!compact ? 'mr-3' : ''} ${
+        isActive 
+          ? 'bg-primary-blue/20 text-primary-blue dark:bg-primary-purple/30 dark:text-primary-purple' 
+          : 'group-hover:bg-gray-200 dark:group-hover:bg-gray-700'
+      }`}>
+        {icon}
+      </div>
       {!compact && (
-        <span className="whitespace-nowrap overflow-hidden text-ellipsis transition-all duration-200">
+        <span className={`flex-1 whitespace-nowrap overflow-hidden text-ellipsis transition-all duration-200 font-medium ${
+          isActive 
+            ? 'text-primary-blue dark:text-primary-purple' 
+            : 'text-gray-700 dark:text-gray-300'
+        }`}>
           {label}
         </span>
       )}
@@ -53,10 +64,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   );
 
   if (href) {
-    return <Link href={href} className="block">{content}</Link>;
+    return <Link href={href} className="block mb-1">{content}</Link>;
   }
   
-  return <button className="w-full text-left" onClick={onClick}>{content}</button>;
+  return <button className="w-full text-left mb-1" onClick={onClick}>{content}</button>;
 };
 
 interface CollapsibleSectionProps {
@@ -355,156 +366,169 @@ export default function DashboardLayout({
               >
                 <HiOutlineX className="w-5 h-5" />
               </button>
-            </div>
-            <div className="flex-1 overflow-y-auto py-5 px-3 custom-scrollbar">            <Link
-              href="/dashboard"
-              className={`flex items-center text-sm py-1.5 px-2 rounded-lg ${
-                pathname === '/dashboard' 
-                  ? 'bg-gray-200 dark:bg-gray-700 text-primary-blue dark:text-primary-purple' 
-                  : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-              } ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors`}
-            >
-              <div className={`sidebar-icon ${!isEffectivelyClosed ? 'mr-2' : ''}`}>
-                <HiOutlineHome className="w-4 h-4" />
+            </div>            <div className="flex-1 overflow-y-auto py-5 px-3 custom-scrollbar">
+              {/* Top Section - Dashboard and AI Drawing */}
+              <div className="mb-6">
+                <SidebarItem
+                  icon={<HiOutlineHome className="w-5 h-5" />}
+                  label="Dashboard"
+                  href="/dashboard"
+                  isActive={pathname === '/dashboard'}
+                  compact={isEffectivelyClosed}
+                />
+                
+                <SidebarItem
+                  icon={<HiOutlinePencilAlt className="w-5 h-5" />}
+                  label="AI Drawing"
+                  href="/dashboard/ai-drawing"
+                  isActive={pathname === '/dashboard/ai-drawing'}
+                  compact={isEffectivelyClosed}
+                />
               </div>
-              {!isEffectivelyClosed && <span>Dashboard</span>}
-            </Link>
 
-            <div className="my-6 border-b dark:border-gray-700 border-gray-200 opacity-70"></div>
-              <CollapsibleSection 
-                title="Projects" 
-                defaultOpen={true} 
-                compact={isEffectivelyClosed} 
-                titleHref="/dashboard/projects"
-              >
-                <div className="space-y-1">
-                  {projects.map(project => (
-                    <SidebarItem
-                      key={project.projectId}
-                      icon={<HiOutlineFolder />}
-                      label={project.name}
-                      href={`/dashboard/projects/${project.projectId}`}
-                      isActive={pathname === `/dashboard/projects/${project.projectId}`}
-                      compact={isEffectivelyClosed}
-                    />
-                  ))}                  <div className={isEffectivelyClosed ? '' : 'pl-2 mt-1'}>
-                    <Link 
-                      href="#" 
-                      onClick={handleOpenProjectModal}
-                      className={`flex items-center text-sm py-1.5 px-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors`}
-                    >
-                      <HiOutlinePlus className={`w-4 h-4 ${!isEffectivelyClosed ? 'mr-2' : ''}`} />
-                      {!isEffectivelyClosed && <span>New Project</span>}
-                    </Link>
-                  </div>
-                </div>
-              </CollapsibleSection>
+              {/* Divider */}
+              <div className="my-6 border-b dark:border-gray-700 border-gray-200 opacity-70"></div>
 
-              <CollapsibleSection 
-                title="Chats" 
-                defaultOpen={true} 
-                compact={isEffectivelyClosed}
-                titleHref="/dashboard/chats"
-              >
-                <div className="space-y-1">
-                  {recentChats.map(chat => (
-                    <SidebarItem
-                      key={chat.chatId}
-                      icon={<HiOutlineChat />}
-                      label={chat.title}
-                      href={`/dashboard/chats/${chat.chatId}`}
-                      isActive={pathname === `/dashboard/chats/${chat.chatId}`}
-                      compact={isEffectivelyClosed}
-                    />
-                  ))}                  <div className={isEffectivelyClosed ? '' : 'pl-2 mt-1'}>
-                    <Link 
-                      href="/dashboard/chats/new"
-                      className={`flex items-center text-sm py-1.5 px-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors`}
-                    >
-                      <HiOutlinePlus className={`w-4 h-4 ${!isEffectivelyClosed ? 'mr-2' : ''}`} />
-                      {!isEffectivelyClosed && <span>New Chat</span>}
-                    </Link>
-                  </div>
-                </div>              </CollapsibleSection>
-
-              {/* AI Drawing Tab */}
-              <Link
-                href="/dashboard/ai-drawing"
-                className={`flex items-center text-sm py-1.5 px-2 rounded-lg ${
-                  pathname === '/dashboard/ai-drawing' 
-                    ? 'bg-gray-200 dark:bg-gray-700 text-primary-blue dark:text-primary-purple' 
-                    : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                } ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors mb-4`}
-              >
-                <div className={`sidebar-icon ${!isEffectivelyClosed ? 'mr-2' : ''}`}>
-                  <HiOutlinePencilAlt className="w-4 h-4" />
-                </div>
-                {!isEffectivelyClosed && <span>AI Drawing</span>}
-              </Link>
-
-              <CollapsibleSection title="Cloud Connections" compact={isEffectivelyClosed}>
-                <div className="space-y-1"><Link 
-                    href="/dashboard/cloud/google-drive"
-                    className={`flex items-center text-sm py-1.5 px-2 rounded-lg ${
-                      pathname === '/dashboard/cloud/google-drive' 
-                        ? 'bg-gray-200 dark:bg-gray-700 text-primary-blue dark:text-primary-purple' 
-                        : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                    } ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors`}
-                  >
-                    <div className={`sidebar-icon ${!isEffectivelyClosed ? 'mr-2' : ''}`}>
-                      <HiOutlineCloud className="w-4 h-4" />
+              {/* Main Sections */}
+              <div className="space-y-6">
+                <CollapsibleSection 
+                  title="Chats" 
+                  defaultOpen={true} 
+                  compact={isEffectivelyClosed}
+                  titleHref="/dashboard/chats"
+                >
+                  <div className="space-y-1">
+                    {recentChats.map(chat => (
+                      <SidebarItem
+                        key={chat.chatId}
+                        icon={<HiOutlineChat />}
+                        label={chat.title}
+                        href={`/dashboard/chats/${chat.chatId}`}
+                        isActive={pathname === `/dashboard/chats/${chat.chatId}`}
+                        compact={isEffectivelyClosed}
+                      />
+                    ))}                    <div className={isEffectivelyClosed ? '' : 'pl-2 mt-1'}>
+                      <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-gradient-x"></div>
+                        <Link 
+                          href="/dashboard/chats/new"
+                          className={`relative flex items-center text-sm py-1.5 px-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${isEffectivelyClosed ? 'justify-center' : ''} transition-all duration-300 border border-gray-200 dark:border-gray-600 group-hover:border-transparent z-10`}
+                        >
+                          <HiOutlinePlus className={`w-4 h-4 ${!isEffectivelyClosed ? 'mr-2' : ''}`} />
+                          {!isEffectivelyClosed && <span>New Chat</span>}
+                        </Link>
+                      </div>
                     </div>
-                    {!isEffectivelyClosed && <span>Google Drive</span>}
-                  </Link>                  <Link 
-                    href="/dashboard/cloud/onedrive"
-                    className={`flex items-center text-sm py-1.5 px-2 rounded-lg ${
-                      pathname === '/dashboard/cloud/onedrive' 
-                        ? 'bg-gray-200 dark:bg-gray-700 text-primary-blue dark:text-primary-purple' 
-                        : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                    } ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors`}
-                  >
-                    <div className={`sidebar-icon ${!isEffectivelyClosed ? 'mr-2' : ''}`}>
-                      <HiOutlineCloud className="w-4 h-4" />
-                    </div>
-                    {!isEffectivelyClosed && <span>OneDrive</span>}
-                  </Link><Link 
-                    href="/dashboard/cloud/dropbox"
-                    className={`flex items-center text-sm py-1.5 px-2 rounded-lg ${
-                      pathname === '/dashboard/cloud/dropbox' 
-                        ? 'bg-gray-200 dark:bg-gray-700 text-primary-blue dark:text-primary-purple' 
-                        : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                    } ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors`}
-                  >
-                    <div className={`sidebar-icon ${!isEffectivelyClosed ? 'mr-2' : ''}`}>
-                      <HiOutlineCloud className="w-4 h-4" />
-                    </div>
-                    {!isEffectivelyClosed && <span>Dropbox</span>}
-                  </Link>                  <div className={isEffectivelyClosed ? '' : 'pl-2 mt-1'}>
-                    <Link 
-                      href="/dashboard/cloud/connect"
-                      className={`flex items-center text-sm py-1.5 px-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors`}
-                    >
-                      <HiOutlinePlus className={`w-4 h-4 ${!isEffectivelyClosed ? 'mr-2' : ''}`} />
-                      {!isEffectivelyClosed && <span>Connect New</span>}
-                    </Link>
                   </div>
-                </div>
-              </CollapsibleSection>
-            </div>
-          </div>
-          <div className="p-4">
-            <div className="my-1 border-b dark:border-gray-700 border-gray-200 opacity-70 mb-6"></div>
-            <div className={`flex items-center mb-4 ${isEffectivelyClosed ? 'justify-center' : ''}`}>
-              <div className="w-9 h-9 rounded-full bg-gradient-to-r from-primary-blue to-primary-purple flex items-center justify-center text-white shadow-md">
-                {userData?.displayName ? userData.displayName[0].toUpperCase() : 'U'}
+                </CollapsibleSection>
+
+                <CollapsibleSection 
+                  title="Projects" 
+                  defaultOpen={true} 
+                  compact={isEffectivelyClosed} 
+                  titleHref="/dashboard/projects"
+                >
+                  <div className="space-y-1">
+                    {projects.map(project => (
+                      <SidebarItem
+                        key={project.projectId}
+                        icon={<HiOutlineFolder />}
+                        label={project.name}
+                        href={`/dashboard/projects/${project.projectId}`}
+                        isActive={pathname === `/dashboard/projects/${project.projectId}`}
+                        compact={isEffectivelyClosed}
+                      />
+                    ))}                    <div className={isEffectivelyClosed ? '' : 'pl-2 mt-1'}>
+                      <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-gradient-x"></div>
+                        <Link 
+                          href="#" 
+                          onClick={handleOpenProjectModal}
+                          className={`relative flex items-center text-sm py-1.5 px-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${isEffectivelyClosed ? 'justify-center' : ''} transition-all duration-300 border border-gray-200 dark:border-gray-600 group-hover:border-transparent z-10`}
+                        >
+                          <HiOutlinePlus className={`w-4 h-4 ${!isEffectivelyClosed ? 'mr-2' : ''}`} />
+                          {!isEffectivelyClosed && <span>New Project</span>}
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </CollapsibleSection>
+
+                <CollapsibleSection title="Cloud Connections" compact={isEffectivelyClosed}>
+                  <div className="space-y-1">
+                    <Link 
+                      href="/dashboard/cloud/google-drive"
+                      className={`flex items-center text-sm py-1.5 px-2 rounded-lg ${
+                        pathname === '/dashboard/cloud/google-drive' 
+                          ? 'bg-gray-200 dark:bg-gray-700 text-primary-blue dark:text-primary-purple' 
+                          : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      } ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors`}
+                    >
+                      <div className={`sidebar-icon ${!isEffectivelyClosed ? 'mr-2' : ''}`}>
+                        <HiOutlineCloud className="w-4 h-4" />
+                      </div>
+                      {!isEffectivelyClosed && <span>Google Drive</span>}
+                    </Link>
+                    <Link 
+                      href="/dashboard/cloud/onedrive"
+                      className={`flex items-center text-sm py-1.5 px-2 rounded-lg ${
+                        pathname === '/dashboard/cloud/onedrive' 
+                          ? 'bg-gray-200 dark:bg-gray-700 text-primary-blue dark:text-primary-purple' 
+                          : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      } ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors`}
+                    >
+                      <div className={`sidebar-icon ${!isEffectivelyClosed ? 'mr-2' : ''}`}>
+                        <HiOutlineCloud className="w-4 h-4" />
+                      </div>
+                      {!isEffectivelyClosed && <span>OneDrive</span>}
+                    </Link>
+                    <Link 
+                      href="/dashboard/cloud/dropbox"
+                      className={`flex items-center text-sm py-1.5 px-2 rounded-lg ${
+                        pathname === '/dashboard/cloud/dropbox' 
+                          ? 'bg-gray-200 dark:bg-gray-700 text-primary-blue dark:text-primary-purple' 
+                          : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      } ${isEffectivelyClosed ? 'justify-center' : ''} transition-colors`}
+                    >
+                      <div className={`sidebar-icon ${!isEffectivelyClosed ? 'mr-2' : ''}`}>
+                        <HiOutlineCloud className="w-4 h-4" />
+                      </div>
+                      {!isEffectivelyClosed && <span>Dropbox</span>}
+                    </Link>                    <div className={isEffectivelyClosed ? '' : 'pl-2 mt-1'}>
+                      <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-gradient-x"></div>
+                        <Link 
+                          href="/dashboard/cloud/connect"
+                          className={`relative flex items-center text-sm py-1.5 px-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${isEffectivelyClosed ? 'justify-center' : ''} transition-all duration-300 border border-gray-200 dark:border-gray-600 group-hover:border-transparent z-10`}
+                        >
+                          <HiOutlinePlus className={`w-4 h-4 ${!isEffectivelyClosed ? 'mr-2' : ''}`} />
+                          {!isEffectivelyClosed && <span>Connect New</span>}
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </CollapsibleSection>
+
+                <CollapsibleSection title="Documents" compact={isEffectivelyClosed}>
+                  <div className="space-y-1">
+                    <div className={isEffectivelyClosed ? '' : 'pl-2 mt-1'}>
+                      <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-gradient-x"></div>
+                        <Link 
+                          href="/dashboard/documents/generate"
+                          className={`relative flex items-center text-sm py-1.5 px-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 ${isEffectivelyClosed ? 'justify-center' : ''} transition-all duration-300 border border-gray-200 dark:border-gray-600 group-hover:border-transparent z-10`}
+                        >
+                          <HiOutlineDocumentText className={`w-4 h-4 ${!isEffectivelyClosed ? 'mr-2' : ''}`} />
+                          {!isEffectivelyClosed && <span>Generate Document</span>}
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </CollapsibleSection>
               </div>
-              {!isEffectivelyClosed && (
-                <div className="ml-3 flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{userData?.displayName || 'User'}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{userData?.email}</p>
-                </div>
-              )}
-            </div>            <div className="space-y-1">
+            </div>
+            {/* Bottom section for Profile, Settings, Logout */}
+            <div className="mt-auto p-3 border-t border-gray-200 dark:border-gray-700">
               <SidebarItem
                 icon={<HiOutlineUser />}
                 label="Profile"
@@ -521,12 +545,16 @@ export default function DashboardLayout({
               />
               <SidebarItem
                 icon={<HiOutlineLogout />}
-                label="Sign Out"
+                label="Logout"
                 onClick={handleSignOut}
                 compact={isEffectivelyClosed}
               />
+              <div className="mt-4 flex justify-center">
+                <EnhancedThemeToggle />
+              </div>
             </div>
           </div>
+          {/* Removed the old user avatar and logout button from here as they are now part of the SidebarItem structure or moved to the new bottom section */}
         </div>
 
       {/* Main content */}
