@@ -13,13 +13,11 @@ import ChatService, { Chat } from '@/services/chat-service';
 // Icons
 import {
   HiOutlineChevronDown, HiOutlineChevronRight,
-  HiOutlineChat, HiOutlineFolder, HiOutlineCloud,
+  HiOutlineChat, HiOutlineFolder, HiOutlineCloud, HiOutlineDocumentText, // Added HiOutlineDocumentText
   HiOutlineCog, HiOutlineLogout, HiOutlineUser,
   HiOutlinePlus, HiOutlineHome, HiOutlineX,
   HiOutlineMenuAlt2, HiOutlinePaperClip,
-  HiOutlineDocumentText // Icon for Documents
-} from 'react-icons/hi';
-import { HiOutlinePencilAlt } from 'react-icons/hi'; // Icon for AI Drawing
+  HiOutlinePencilAlt } from 'react-icons/hi'; // Icon for AI Drawing
 
 // Add interface for hover state management
 interface SidebarState {
@@ -76,17 +74,38 @@ interface CollapsibleSectionProps {
   defaultOpen?: boolean;
   compact?: boolean;
   titleHref?: string; // New prop for navigation
+  icon?: React.ReactNode; // Added icon prop
 }
 
 const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ 
-  title, children, defaultOpen = false, compact = false, titleHref
+  title, children, defaultOpen = false, compact = false, titleHref, icon // Added icon prop
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const router = useRouter();
+
+  // Determine if the section should be open based on compact state
+  const effectivelyOpen = compact ? false : isOpen;
+
   const handleTitleClick = (e: React.MouseEvent) => {
-    if (titleHref) {
-      e.preventDefault();
+    if (compact && titleHref) { // If compact and has a link, navigate
       router.push(titleHref);
+      return;
+    }
+    if (compact && !titleHref) { // If compact and no link, do nothing or maybe toggle a different state if needed for compact view interaction
+        // Currently, clicking the icon in compact mode won't expand the section,
+        // it will navigate if titleHref is present.
+        // If you want icons to expand the section even in compact mode, this logic needs adjustment.
+        return;
+    }
+    // Default behavior for non-compact mode or if no titleHref
+    if (titleHref && !compact) {
+      // Option 1: Navigate and let the page handle the open state (e.g. via URL)
+      // router.push(titleHref);
+      // Option 2: Navigate and also toggle the section
+      setIsOpen(!isOpen); // Keep this if you want to toggle even when navigating
+      router.push(titleHref);
+
+
     } else {
       setIsOpen(!isOpen);
     }
@@ -94,33 +113,52 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   
   return (
     <div className="collapsible-section">
-      <div className="collapsible-section-title">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex-shrink-0 mr-2 transition-transform duration-200"
-          style={{ transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-          aria-label={isOpen ? 'Collapse section' : 'Expand section'}
-        >
-          <HiOutlineChevronDown className="w-4 h-4" />
-        </button>
+      <div 
+        className={`collapsible-section-title ${compact ? 'justify-center' : ''}`}
+        onClick={handleTitleClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleTitleClick(e as any); }}
+        title={compact ? title : (effectivelyOpen ? `Collapse ${title}` : `Expand ${title}`)} // Tooltip for icon
+      >
+        {!compact && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent title click from firing
+              setIsOpen(!isOpen);
+            }}
+            className="flex-shrink-0 mr-2 transition-transform duration-200"
+            style={{ transform: effectivelyOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+            aria-label={effectivelyOpen ? 'Collapse section' : 'Expand section'}
+            title={effectivelyOpen ? 'Collapse section' : 'Expand section'}
+          >
+            <HiOutlineChevronDown className="w-4 h-4" />
+          </button>
+        )}
         
-        {titleHref ? (
+        {compact && icon ? (
+          <div className="sidebar-icon p-1.5 rounded-lg"> {/* Added padding and rounded style for consistency */}
+            {icon}
+          </div>
+        ) : titleHref ? (
           <Link 
             href={titleHref} 
             className="flex-grow hover:text-blue-500 transition-colors"
+            onClick={(e) => {
+              // If compact, the parent onClick handles navigation.
+              // If not compact, allow link to navigate but also ensure section toggling is handled by parent.
+              if (compact) e.preventDefault();
+            }}
           >
             {title}
           </Link>
         ) : (
-          <button
-            className="flex-grow hover:text-blue-500 transition-colors text-left"
-            onClick={() => setIsOpen(!isOpen)}
-          >
+          <span className="flex-grow text-left"> {/* Changed button to span for non-interactive title when no href */}
             {title}
-          </button>
+          </span>
         )}
       </div>
-      {isOpen && <div className="collapsible-section-content">{children}</div>}
+      {effectivelyOpen && !compact && <div className="collapsible-section-content">{children}</div>}
     </div>
   );
 };
@@ -393,6 +431,7 @@ export default function DashboardLayout({
               <div className="space-y-6">
                 <CollapsibleSection 
                   title="Chats" 
+                  icon={<HiOutlineChat className="w-5 h-5" />} // Added icon
                   defaultOpen={true} 
                   compact={isEffectivelyClosed}
                   titleHref="/dashboard/chats"
@@ -424,6 +463,7 @@ export default function DashboardLayout({
 
                 <CollapsibleSection 
                   title="Projects" 
+                  icon={<HiOutlineFolder className="w-5 h-5" />} // Added icon
                   defaultOpen={true} 
                   compact={isEffectivelyClosed} 
                   titleHref="/dashboard/projects"
@@ -454,7 +494,12 @@ export default function DashboardLayout({
                   </div>
                 </CollapsibleSection>
 
-                <CollapsibleSection title="Cloud Connections" compact={isEffectivelyClosed}>
+                <CollapsibleSection 
+                  title="Cloud Connections" 
+                  icon={<HiOutlineCloud className="w-5 h-5" />} // Added icon
+                  compact={isEffectivelyClosed}
+                  // titleHref="/dashboard/cloud" // Optional: if you want the icon to navigate
+                >
                   <div className="space-y-1">
                     <Link 
                       href="/dashboard/cloud/google-drive"
@@ -509,7 +554,12 @@ export default function DashboardLayout({
                   </div>
                 </CollapsibleSection>
 
-                <CollapsibleSection title="Documents" compact={isEffectivelyClosed}>
+                <CollapsibleSection 
+                  title="Documents" 
+                  icon={<HiOutlineDocumentText className="w-5 h-5" />} // Added icon
+                  compact={isEffectivelyClosed}
+                  // titleHref="/dashboard/documents" // Optional: if you want the icon to navigate
+                >
                   <div className="space-y-1">
                     <div className={isEffectivelyClosed ? '' : 'pl-2 mt-1'}>
                       <div className="relative group">
@@ -570,9 +620,8 @@ export default function DashboardLayout({
           </button>
           <h1 className="text-xl font-bold gradient-text">SME.AI</h1>
         </div>
-        
-        {/* Main content */}
-        <main className="flex-1 overflow-auto pt-6 px-6 md:pt-8 md:px-8">
+          {/* Main content */}
+        <main className="flex-1 overflow-auto">
           {children}
         </main>
       </div>
