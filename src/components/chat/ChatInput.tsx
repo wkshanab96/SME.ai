@@ -4,7 +4,11 @@ import { useTheme } from '@/lib/theme-context';
 import { 
   HiOutlineBeaker, HiOutlineLightningBolt, HiOutlineCog, 
   HiOutlineChip, HiOutlineDocumentText, HiOutlineClipboardCheck,
-  HiOutlineDocument, HiOutlineDocumentReport, HiOutlineTable
+  HiOutlineDocument, HiOutlineDocumentReport, HiOutlineTable,
+  HiOutlinePaperClip, // Added for the main attachment button
+  HiOutlinePhotograph, // Added for "Add Photo"
+  HiOutlineDocumentAdd, // Added for "Add File"
+  HiOutlineCloudUpload, // Added for cloud uploads
 } from 'react-icons/hi';
 
 export interface ChatInputProps {
@@ -142,10 +146,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     if (value === 'upload_file' || value === 'upload_image') {
       // Trigger file input
       if (fileInputRef.current) {
-        fileInputRef.current.accept = value === 'upload_image' ? 'image/*' : '*';
+        fileInputRef.current.accept = value === 'upload_image' ? 'image/*' : '*/*'; // Allow all files for 'upload_file'
         fileInputRef.current.click();
       }
-    } else if (value === 'google_drive' || value === 'onedrive' || value === 'dropbox') {
+    } else if (value === 'google_drive' || value === 'onedrive') { // Removed dropbox for now
       // Handle cloud service integration
       // For now, show a placeholder alert - this would be replaced with actual cloud integration
       alert(`${value.replace('_', ' ').toUpperCase()} integration coming soon!`);
@@ -277,91 +281,52 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   }`}
                   title="Add attachment"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                  </svg>
+                  <HiOutlinePaperClip className="h-5 w-5" />
                 </button>
                 
                 {/* Enhanced Attachment dropdown positioned from input attachment button */}
                 {showAttachmentDropdown && (
-                  <div className={`absolute bottom-[calc(100%+8px)] right-0 ${getDropdownBg()} rounded-lg shadow-lg py-2 z-50 w-[280px] border ${resolvedTheme === 'dark' ? 'border-gray-700' : 'border-gray-200'} animate-fadeIn`}>
-                    <div className="absolute -bottom-2 right-6 w-4 h-4 rotate-45 bg-inherit border-b border-r border-inherit"></div>
-                    
-                    <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-                      <h3 className={`text-sm font-medium ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
-                        Add Attachment
-                      </h3>
-                    </div>
+                  <div className={`absolute bottom-[calc(100%+12px)] right-0 ${getDropdownBg()} rounded-xl shadow-2xl py-2 z-50 w-64 border ${resolvedTheme === 'dark' ? 'border-gray-700/50' : 'border-gray-200/80'} animate-fadeIn`}>
+                    {/* Triangle pointer - optional, can be removed for a cleaner look if preferred */}
+                    {/* <div className={`absolute -bottom-2 right-6 w-4 h-4 rotate-45 ${resolvedTheme === 'dark' ? 'bg-[#1e293b]' : 'bg-white'} border-b border-r ${resolvedTheme === 'dark' ? 'border-gray-700/50' : 'border-gray-200/80\'}`}></div> */}
                     
                     <div className="py-1">
-                      {/* Local Upload Section */}
-                      <div className="px-3 py-1">
-                        <p className={`text-xs font-medium uppercase tracking-wide ${resolvedTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mb-2`}>
-                          Upload from Device
-                        </p>
-                      </div>
-                      
                       <button
                         type="button"
-                        className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
-                        onClick={() => handleAttachmentTypeChange('upload_image')}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        Upload Image
-                      </button>
-                      
-                      <button
-                        type="button"
-                        className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                        className={`px-4 py-3 text-sm flex items-center w-full text-left transition-colors duration-150 ease-in-out ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/60' : 'text-gray-700 hover:bg-gray-100/80'}`}
                         onClick={() => handleAttachmentTypeChange('upload_file')}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Upload Document
+                        <HiOutlineDocumentAdd className="h-5 w-5 mr-3 text-blue-500" />
+                        Add File
                       </button>
-
-                      {/* Cloud Services Section */}
-                      <div className="px-3 py-1 mt-3">
-                        <p className={`text-xs font-medium uppercase tracking-wide ${resolvedTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mb-2`}>
-                          Connect from Cloud
-                        </p>
-                      </div>
-                      
                       <button
                         type="button"
-                        className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                        className={`px-4 py-3 text-sm flex items-center w-full text-left transition-colors duration-150 ease-in-out ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/60' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                        onClick={() => handleAttachmentTypeChange('upload_image')}
+                      >
+                        <HiOutlinePhotograph className="h-5 w-5 mr-3 text-green-500" />
+                        Add Photo
+                      </button>
+                      
+                      {/* Divider */}
+                      <div className="my-1 border-t border-gray-200 dark:border-gray-700/50"></div>
+
+                      <button
+                        type="button"
+                        className={`px-4 py-3 text-sm flex items-center w-full text-left transition-colors duration-150 ease-in-out ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/60' : 'text-gray-700 hover:bg-gray-100/80'}`}
                         onClick={() => handleAttachmentTypeChange('google_drive')}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M6.26 12.49l-1.65 2.86L7.86 19h8.28l1.65-2.86L15.74 12.49H6.26zM15.74 11.51l1.65-2.86L15.74 5.14H8.26L6.61 8.65l1.65 2.86h7.48z"/>
-                          <path d="M10.9 7.51L9.25 4.65h5.5l-1.65 2.86H10.9zM13.1 16.49l1.65 2.86h-5.5l1.65-2.86h2.2z"/>
-                        </svg>
+                        <HiOutlineCloudUpload className="h-5 w-5 mr-3 text-yellow-500" />
                         Google Drive
                       </button>
                       
                       <button
                         type="button"
-                        className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                        className={`px-4 py-3 text-sm flex items-center w-full text-left transition-colors duration-150 ease-in-out ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/60' : 'text-gray-700 hover:bg-gray-100/80'}`}
                         onClick={() => handleAttachmentTypeChange('onedrive')}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M7.71,10.79a4.32,4.32,0,0,1,8.19-1.25,5.69,5.69,0,0,1,3.4,5.22,3.83,3.83,0,0,1-.07.72H4.34A3.17,3.17,0,0,1,4.29,15a3.46,3.46,0,0,1,3.42-4.21Z"/>
-                        </svg>
+                        <HiOutlineCloudUpload className="h-5 w-5 mr-3 text-sky-500" />
                         OneDrive
-                      </button>
-                      
-                      <button
-                        type="button"
-                        className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
-                        onClick={() => handleAttachmentTypeChange('dropbox')}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12,12.5l-6-4.8L0,12.5l6,4.8L12,12.5z M6,7.7l6,4.8l6-4.8L12,2.9L6,7.7z M18,12.5l-6-4.8l6-4.8l6,4.8L18,12.5z M12,14.3l-6-4.8l-6,4.8l6,4.8L12,14.3z M12,21.1l-6-4.8l6-4.8l6,4.8L12,21.1z"/>
-                        </svg>
-                        Dropbox
                       </button>
                     </div>
                   </div>

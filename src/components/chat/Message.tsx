@@ -48,8 +48,8 @@ const Message: React.FC<MessageProps> = ({
     // AI message background - clean borderless design like ChatGPT
   const getAIMessageStyle = () => {
     return resolvedTheme === 'dark' 
-      ? 'bg-gray-800/50 text-gray-100' 
-      : 'bg-gray-50/80 text-gray-900';
+      ? 'bg-transparent text-gray-100' 
+      : 'bg-transparent text-gray-900';
   };
     // User message style with better visual hierarchy
   const getUserMessageStyle = () => {
