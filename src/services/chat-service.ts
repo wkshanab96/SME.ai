@@ -22,17 +22,23 @@ export interface Chat {
 
 // Chat Service
 export const ChatService = {
-  
-  // Create a new chat
+    // Create a new chat
   async createChat(userId: string, title: string, projectId?: string): Promise<Chat> {
     try {
-      const chatRef = await addDoc(collection(db, 'chats'), {
+      // Build the chat data object, only including projectId if it's defined
+      const chatData: any = {
         userId,
         title,
-        projectId,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
-      });
+      };
+      
+      // Only add projectId if it's defined (to avoid Firebase errors with undefined values)
+      if (projectId && projectId !== undefined) {
+        chatData.projectId = projectId;
+      }
+      
+      const chatRef = await addDoc(collection(db, 'chats'), chatData);
       
       return {
         chatId: chatRef.id,

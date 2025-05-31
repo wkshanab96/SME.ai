@@ -8,7 +8,7 @@ import {
 } from 'react-icons/hi';
 
 export interface ChatInputProps {
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, attachments?: File[]) => void;
   placeholder?: string;
   disabled?: boolean;
   isFirstMessage?: boolean;
@@ -35,12 +35,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const [specialty, setSpecialty] = useState('general');
   const [documentType, setDocumentType] = useState('');
   const [attachmentType, setAttachmentType] = useState('');
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const [showAttachmentDropdown, setShowAttachmentDropdown] = useState(false);
   const [showSpecialtyOptions, setShowSpecialtyOptions] = useState(false);
   const [showDocumentOptions, setShowDocumentOptions] = useState(false);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const attachmentRef = useRef<HTMLDivElement>(null);
   const specialtyRef = useRef<HTMLDivElement>(null);
   const documentRef = useRef<HTMLDivElement>(null);
@@ -84,13 +86,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
     setMessage(e.target.value);
     resizeTextarea();
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (message.trim() && !disabled) {
-      onSendMessage(message.trim());
+      onSendMessage(message.trim(), attachments);
       setMessage('');
+      setAttachments([]);
       
       // Reset textarea height after submission
       if (textareaRef.current) {
@@ -132,12 +134,35 @@ const ChatInput: React.FC<ChatInputProps> = ({
     onDocumentTypeChange(value);
     setShowDocumentOptions(false);
   };
-
   // Handle attachment type change
   const handleAttachmentTypeChange = (value: string) => {
     setAttachmentType(value);
     setShowAttachmentDropdown(false);
-    // Additional handling could be added here
+    
+    // Handle different attachment types
+    if (value === 'upload_file' || value === 'upload_image') {
+      // Trigger file input
+      if (fileInputRef.current) {
+        fileInputRef.current.accept = value === 'upload_image' ? 'image/*' : '*';
+        fileInputRef.current.click();
+      }
+    }
+    // Additional handling for cloud attachments could be added here
+  };
+
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setAttachments(prev => [...prev, ...files]);
+    }
+    // Reset input value to allow selecting the same file again
+    e.target.value = '';
+  };
+
+  // Remove attachment
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
   const toggleAttachmentDropdown = () => {
@@ -293,6 +318,48 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 </div>
               </div>
             )}
+          </div>          {/* Attachment button with dropdown */}
+          <div className="relative" ref={attachmentRef}>
+            <button
+              type="button"
+              onClick={toggleAttachmentDropdown}
+              className={`rounded-full p-1.5 ${getToolbarButtonBg(attachments.length > 0)} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
+              title="Attachment"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+            </button>
+            
+            {/* Attachment options dropdown */}
+            {showAttachmentDropdown && (
+              <div className={`absolute top-[calc(100%+8px)] left-1/2 transform -translate-x-1/2 ${getDropdownBg()} rounded-lg shadow-lg py-2 z-10 w-[240px] border ${resolvedTheme === 'dark' ? 'border-gray-700' : 'border-gray-200'} animate-fadeIn`}>
+                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-inherit border-t border-l border-inherit"></div>
+                
+                <div className="grid grid-cols-1 gap-1">
+                  <button
+                    type="button"
+                    className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                    onClick={() => handleAttachmentTypeChange('upload_image')}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Upload Image
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                    onClick={() => handleAttachmentTypeChange('upload_file')}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Upload Local File
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Document button with dropdown positioned correctly */}
@@ -365,9 +432,40 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   </button>
                 </div>
               </div>
-            )}
-          </div>
+            )}          </div>
         </div>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+
+        {/* Attachment previews */}
+        {attachments.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {attachments.map((file, index) => (
+              <div key={index} className={`flex items-center ${getBackgroundColor()} ${getBorderColor()} border rounded-lg px-3 py-2 text-sm`}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+                <span className={`${getTextColor()} mr-2 max-w-[150px] truncate`}>{file.name}</span>
+                <button
+                  type="button"
+                  onClick={() => removeAttachment(index)}
+                  className="text-red-500 hover:text-red-700 ml-1"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </form>
     </div>
   );

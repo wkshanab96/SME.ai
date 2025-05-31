@@ -21,9 +21,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   const { resolvedTheme } = useTheme();
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Messages container with consistent width */}
-      <div className="flex-grow overflow-y-auto pt-4 pb-36 custom-scrollbar">
+    <div className="flex flex-col h-full">      {/* Messages container with consistent width */}
+      <div className="flex-grow overflow-y-auto pt-8 pb-36 custom-scrollbar">
         <div className="flex flex-col max-w-4xl w-full mx-auto px-4">
           <div className="flex flex-col w-full">
             {/* Messages will be rendered here */}
