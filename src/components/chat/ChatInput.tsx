@@ -133,8 +133,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     setDocumentType(value);
     onDocumentTypeChange(value);
     setShowDocumentOptions(false);
-  };
-  // Handle attachment type change
+  };  // Handle attachment type change
   const handleAttachmentTypeChange = (value: string) => {
     setAttachmentType(value);
     setShowAttachmentDropdown(false);
@@ -146,8 +145,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
         fileInputRef.current.accept = value === 'upload_image' ? 'image/*' : '*';
         fileInputRef.current.click();
       }
+    } else if (value === 'google_drive' || value === 'onedrive' || value === 'dropbox') {
+      // Handle cloud service integration
+      // For now, show a placeholder alert - this would be replaced with actual cloud integration
+      alert(`${value.replace('_', ' ').toUpperCase()} integration coming soon!`);
     }
-    // Additional handling for cloud attachments could be added here
   };
 
   // Handle file selection
@@ -164,21 +166,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const removeAttachment = (index: number) => {
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
-
   const toggleAttachmentDropdown = () => {
     setShowAttachmentDropdown(prev => !prev);
     setShowSpecialtyOptions(false);
     setShowDocumentOptions(false);
   };
-
   const toggleSpecialtyOptions = () => {
-    setShowSpecialtyOptions(true);
+    setShowSpecialtyOptions(prev => !prev);
     setShowAttachmentDropdown(false);
     setShowDocumentOptions(false);
   };
 
   const toggleDocumentOptions = () => {
-    setShowDocumentOptions(true);
+    setShowDocumentOptions(prev => !prev);
     setShowAttachmentDropdown(false);
     setShowSpecialtyOptions(false);
   };
@@ -221,6 +221,28 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   return (
     <div className="w-full">
+      {/* Attachment previews */}
+      {attachments.length > 0 && (
+        <div className="mb-2 flex flex-wrap gap-2">
+          {attachments.map((file, index) => (
+            <div key={index} className={`flex items-center ${getBackgroundColor()} ${getBorderColor()} border rounded-lg px-3 py-2 text-sm`}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+              <span className={`${getTextColor()} mr-2 max-w-[150px] truncate`}>{file.name}</span>
+              <button
+                type="button"
+                onClick={() => removeAttachment(index)}
+                className="text-red-500 hover:text-red-700 ml-1"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="bg-transparent">
         {/* Chat input with animated border on focus */}
         <div className="relative">
@@ -228,11 +250,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
           {isFocused && (
             <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 rounded-full animate-gradient-x shadow-chat-focus"></div>
           )}
-          
-          <div className={`relative ${getBackgroundColor()} rounded-full border ${isFocused ? 'border-transparent z-10' : getBorderColor()} transition-all duration-300`}>
-            <textarea
+            <div className={`relative ${getBackgroundColor()} rounded-full border ${isFocused ? 'border-transparent z-10' : getBorderColor()} transition-all duration-300`}>              <textarea
               ref={textareaRef}
-              className={`w-full outline-none resize-none py-3 px-4 rounded-full min-h-[50px] max-h-[150px] ${getTextColor()} bg-transparent ${getPlaceholderColor()} pr-12`}
+              className={`w-full outline-none resize-none py-3 pl-6 pr-20 rounded-full min-h-[50px] max-h-[150px] ${getTextColor()} bg-transparent ${getPlaceholderColor()}`}
               placeholder={placeholder}
               value={message}
               onChange={handleChange}
@@ -243,20 +263,124 @@ const ChatInput: React.FC<ChatInputProps> = ({
               rows={1}
             />
             
-            {/* Enhanced send button with gradient */}
-            <button
-              type="submit"
-              disabled={!message.trim() || disabled}
-              className="absolute right-2 bottom-2.5 rounded-full p-1.5 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:transform-none"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </div>
+            {/* Attachment and send buttons container */}
+            <div className="absolute right-2 bottom-2.5 flex items-center gap-1">
+              {/* Attachment button next to send button */}
+              <div className="relative" ref={attachmentRef}>
+                <button
+                  type="button"
+                  onClick={toggleAttachmentDropdown}
+                  className={`rounded-full p-1.5 transition-all duration-200 ${
+                    attachments.length > 0 
+                      ? 'text-blue-600 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800' 
+                      : `${resolvedTheme === 'dark' ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`
+                  }`}
+                  title="Add attachment"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                  </svg>
+                </button>
+                
+                {/* Enhanced Attachment dropdown positioned from input attachment button */}
+                {showAttachmentDropdown && (
+                  <div className={`absolute bottom-[calc(100%+8px)] right-0 ${getDropdownBg()} rounded-lg shadow-lg py-2 z-50 w-[280px] border ${resolvedTheme === 'dark' ? 'border-gray-700' : 'border-gray-200'} animate-fadeIn`}>
+                    <div className="absolute -bottom-2 right-6 w-4 h-4 rotate-45 bg-inherit border-b border-r border-inherit"></div>
+                    
+                    <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                      <h3 className={`text-sm font-medium ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
+                        Add Attachment
+                      </h3>
+                    </div>
+                    
+                    <div className="py-1">
+                      {/* Local Upload Section */}
+                      <div className="px-3 py-1">
+                        <p className={`text-xs font-medium uppercase tracking-wide ${resolvedTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mb-2`}>
+                          Upload from Device
+                        </p>
+                      </div>
+                      
+                      <button
+                        type="button"
+                        className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                        onClick={() => handleAttachmentTypeChange('upload_image')}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Upload Image
+                      </button>
+                      
+                      <button
+                        type="button"
+                        className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                        onClick={() => handleAttachmentTypeChange('upload_file')}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Upload Document
+                      </button>
 
-        {/* Bottom toolbar buttons */}
+                      {/* Cloud Services Section */}
+                      <div className="px-3 py-1 mt-3">
+                        <p className={`text-xs font-medium uppercase tracking-wide ${resolvedTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mb-2`}>
+                          Connect from Cloud
+                        </p>
+                      </div>
+                      
+                      <button
+                        type="button"
+                        className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                        onClick={() => handleAttachmentTypeChange('google_drive')}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M6.26 12.49l-1.65 2.86L7.86 19h8.28l1.65-2.86L15.74 12.49H6.26zM15.74 11.51l1.65-2.86L15.74 5.14H8.26L6.61 8.65l1.65 2.86h7.48z"/>
+                          <path d="M10.9 7.51L9.25 4.65h5.5l-1.65 2.86H10.9zM13.1 16.49l1.65 2.86h-5.5l1.65-2.86h2.2z"/>
+                        </svg>
+                        Google Drive
+                      </button>
+                      
+                      <button
+                        type="button"
+                        className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                        onClick={() => handleAttachmentTypeChange('onedrive')}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M7.71,10.79a4.32,4.32,0,0,1,8.19-1.25,5.69,5.69,0,0,1,3.4,5.22,3.83,3.83,0,0,1-.07.72H4.34A3.17,3.17,0,0,1,4.29,15a3.46,3.46,0,0,1,3.42-4.21Z"/>
+                        </svg>
+                        OneDrive
+                      </button>
+                      
+                      <button
+                        type="button"
+                        className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
+                        onClick={() => handleAttachmentTypeChange('dropbox')}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12,12.5l-6-4.8L0,12.5l6,4.8L12,12.5z M6,7.7l6,4.8l6-4.8L12,2.9L6,7.7z M18,12.5l-6-4.8l6-4.8l6,4.8L18,12.5z M12,14.3l-6-4.8l-6,4.8l6,4.8L12,14.3z M12,21.1l-6-4.8l6-4.8l6,4.8L12,21.1z"/>
+                        </svg>
+                        Dropbox
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Enhanced send button with gradient */}
+              <button
+                type="submit"
+                disabled={!message.trim() || disabled}
+                className="rounded-full p-1.5 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:transform-none"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>        {/* Bottom toolbar buttons */}
         <div className="flex justify-center mt-2 gap-2 relative">
           <button
             type="button"
@@ -264,8 +388,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
             onClick={handleInternetToggle}
             title="Use the internet"
           >
+            {/* Better internet icon */}
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03-3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </button>
 
@@ -317,50 +442,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   ))}
                 </div>
               </div>
-            )}
-          </div>          {/* Attachment button with dropdown */}
-          <div className="relative" ref={attachmentRef}>
-            <button
-              type="button"
-              onClick={toggleAttachmentDropdown}
-              className={`rounded-full p-1.5 ${getToolbarButtonBg(attachments.length > 0)} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
-              title="Attachment"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-              </svg>
-            </button>
-            
-            {/* Attachment options dropdown */}
-            {showAttachmentDropdown && (
-              <div className={`absolute top-[calc(100%+8px)] left-1/2 transform -translate-x-1/2 ${getDropdownBg()} rounded-lg shadow-lg py-2 z-10 w-[240px] border ${resolvedTheme === 'dark' ? 'border-gray-700' : 'border-gray-200'} animate-fadeIn`}>
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 rotate-45 bg-inherit border-t border-l border-inherit"></div>
-                
-                <div className="grid grid-cols-1 gap-1">
-                  <button
-                    type="button"
-                    className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
-                    onClick={() => handleAttachmentTypeChange('upload_image')}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Upload Image
-                  </button>
-                  <button
-                    type="button"
-                    className={`px-4 py-2 text-sm flex items-center w-full text-left transition-colors ${resolvedTheme === 'dark' ? 'text-gray-300 hover:bg-gray-700/50' : 'text-gray-700 hover:bg-gray-100/80'}`}
-                    onClick={() => handleAttachmentTypeChange('upload_file')}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Upload Local File
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+            )}          </div>
 
           {/* Document button with dropdown positioned correctly */}
           <div className="relative" ref={documentRef}>
@@ -443,29 +525,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
           className="hidden"
           onChange={handleFileSelect}
         />
-
-        {/* Attachment previews */}
-        {attachments.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {attachments.map((file, index) => (
-              <div key={index} className={`flex items-center ${getBackgroundColor()} ${getBorderColor()} border rounded-lg px-3 py-2 text-sm`}>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                </svg>
-                <span className={`${getTextColor()} mr-2 max-w-[150px] truncate`}>{file.name}</span>
-                <button
-                  type="button"
-                  onClick={() => removeAttachment(index)}
-                  className="text-red-500 hover:text-red-700 ml-1"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
       </form>
     </div>
   );

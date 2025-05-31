@@ -45,28 +45,24 @@ const Message: React.FC<MessageProps> = ({
   const animationClass = isNew 
     ? `${animated ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'} transition-all duration-500 ease-out`
     : '';
-  
-  // AI message background that matches page background
+    // AI message background - clean borderless design like ChatGPT
   const getAIMessageStyle = () => {
     return resolvedTheme === 'dark' 
-      ? 'bg-gray-800/70 border border-gray-700 text-gray-200' 
-      : 'bg-white/90 border border-gray-200 shadow-sm text-gray-800';
+      ? 'bg-gray-800/50 text-gray-100' 
+      : 'bg-gray-50/80 text-gray-900';
   };
-  
-  // User message style with gradient
+    // User message style with better visual hierarchy
   const getUserMessageStyle = () => {
-    return 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md';
-  };
-  
-  return (
-    <div className={`w-full flex ${isAI ? 'justify-start' : 'justify-end'} ${animationClass} mb-4`}>
-      <div className={`${isAI ? 'max-w-[70%]' : 'max-w-[70%]'}`}>
-        {/* Message bubble with proper text wrapping */}
+    return 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-shadow duration-200';
+  };  return (
+    <div className={`w-full flex ${isAI ? 'justify-start' : 'justify-end'} ${animationClass} mb-6`}>
+      <div className={`${isAI ? 'max-w-[85%]' : 'max-w-[70%]'}`}>
+        {/* Message bubble with enhanced styling */}
         <div 
-          className={`px-4 py-2.5 rounded-xl break-words overflow-hidden custom-scrollbar backdrop-blur-sm ${
+          className={`px-5 py-4 break-words overflow-hidden ${
             isAI 
-              ? getAIMessageStyle()
-              : getUserMessageStyle()
+              ? `${getAIMessageStyle()} rounded-2xl`
+              : `${getUserMessageStyle()} rounded-2xl`
           }`}
         >
           {isLoading ? (
@@ -76,7 +72,7 @@ const Message: React.FC<MessageProps> = ({
               <div className="w-2 h-2 rounded-full animate-pulse bg-gray-500 dark:bg-gray-400" style={{ animationDelay: '600ms' }}></div>
             </div>
           ) : (
-            <div className="whitespace-pre-wrap text-sm overflow-wrap-break-word custom-scrollbar">
+            <div className="whitespace-pre-wrap text-base leading-relaxed font-normal">
               {content.split('\n').map((line, i) => (
                 <React.Fragment key={i}>
                   {line}
@@ -89,7 +85,7 @@ const Message: React.FC<MessageProps> = ({
         
         {/* Timestamp below message with proper alignment */}
         {timestamp && (
-          <div className={`text-xs mt-1 ${isAI ? 'text-left' : 'text-right'} text-gray-500 dark:text-gray-400`}>
+          <div className={`text-xs mt-2 ${isAI ? 'text-left' : 'text-right'} text-gray-500 dark:text-gray-400`}>
             {formattedTime}
           </div>
         )}
