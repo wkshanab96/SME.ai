@@ -8,6 +8,7 @@ import { useTheme } from '@/lib/theme-context';
 import ChatService, { ChatMessage as DbChatMessage, Chat } from '@/services/chat-service';
 import ProjectService from '@/services/project-service';
 import ProjectChatHistory from './ProjectChatHistory';
+import N8NService from '@/services/n8n-service';
 
 export interface ChatMessage {
   id: string;
@@ -57,8 +58,7 @@ const ChatView: React.FC<ChatViewProps> = ({
   initialMessages = [],
   initialChat,
   onUpdateChat
-}) => {
-  const { user } = useAuth();
+}) => {  const { user } = useAuth();
   const { resolvedTheme } = useTheme();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
@@ -178,9 +178,8 @@ const ChatView: React.FC<ChatViewProps> = ({
     
     loadChatHistory();
   }, [user, projectId]);
-
   // Handle sending a new message
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, attachments?: File[]) => {
     if (!user) return;
     
     // Generate a temporary ID for the message
@@ -226,8 +225,7 @@ const ChatView: React.FC<ChatViewProps> = ({
           onUpdateChat(newChat);
         }
       }
-      
-      // Create user message object with common fields
+        // Create user message object with common fields
       const messageData: any = {
         content,
         role: 'user',
@@ -235,41 +233,91 @@ const ChatView: React.FC<ChatViewProps> = ({
         userId: user.uid
       };
       
-      // Only add projectId if it's defined (to avoid Firebase errors with undefined values)
-      if (projectId) {
+      // Only add projectId if it's defined and not null (to avoid Firebase errors with undefined values)
+      if (projectId && projectId !== undefined) {
         messageData.projectId = projectId;
       }
       
       // Save the user message to the database
-      const savedUserMessage = await ChatService.addMessage(activeChatId, messageData);
-      
-      // In a real implementation, this would call your AI service
-      // For demo purposes, we'll simulate a delay and return a fixed response
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulate AI response based on user message
-      let responseContent = `This is a simulated response to your query about "${content}".`;
-      
-      // Add context about which features were used
-      const contextSources = [];
-      if (useInternet) contextSources.push('internet');
-      if (useCloud) contextSources.push('cloud');
-      if (specialty !== 'general') contextSources.push(`${specialty} specialty`);
-      
-      if (contextSources.length > 0) {
-        responseContent += `\n\nI used the following sources for context: ${contextSources.join(', ')}.`;
+      const savedUserMessage = await ChatService.addMessage(activeChatId, messageData);      // Prepare data for N8N webhook
+      const n8nRequest = {
+        userMessage: content,
+        attachments: attachments || [],
+        settings: {
+          useInternet,
+          useCloud,
+          specialty,
+          documentType
+        },
+        userId: user.uid,
+        projectId: projectId || undefined, // Send undefined if projectId is falsy
+        chatId: activeChatId
+      };
+
+      // Send request to N8N webhook
+      let responseContent = '';
+        if (N8NService.isConfigured()) {
+        try {
+          console.log('Sending request to N8N:', n8nRequest);
+          const n8nResponse = await N8NService.sendChatRequest(n8nRequest);
+          
+          console.log('N8N Response received:', n8nResponse);
+          console.log('N8N Response success:', n8nResponse.success);
+          console.log('N8N Response response:', n8nResponse.response);
+          console.log('N8N Response error:', n8nResponse.error);
+          
+          if (n8nResponse.success) {
+            if (n8nResponse.response && n8nResponse.response.trim()) {
+              responseContent = n8nResponse.response;
+            } else {
+              responseContent = 'N8N webhook responded successfully but returned empty content.';
+              console.warn('N8N returned empty response:', n8nResponse);
+            }
+          } else {
+            const errorMsg = n8nResponse.error || 'Unknown error - N8N returned success=false but no error message';
+            responseContent = `Error from N8N: ${errorMsg}`;
+            console.error('N8N Error Details:', {
+              success: n8nResponse.success,
+              error: n8nResponse.error,
+              response: n8nResponse.response,
+              rawResponse: n8nResponse.rawResponse
+            });
+          }
+        } catch (error) {
+          console.error('Error calling N8N webhook:', error);
+          responseContent = 'Sorry, there was an error processing your request. Please try again.';
+        }
+      } else {
+        // Fallback response when N8N is not configured
+        responseContent = `This is a simulated response to your query about "${content}".`;
+        
+        // Add context about which features were used
+        const contextSources = [];
+        if (useInternet) contextSources.push('internet');
+        if (useCloud) contextSources.push('cloud');
+        if (specialty !== 'general') contextSources.push(`${specialty} specialty`);
+        
+        if (contextSources.length > 0) {
+          responseContent += `\n\nI used the following sources for context: ${contextSources.join(', ')}.`;
+        }
+        
+        if (projectId) {
+          responseContent += '\n\nI\'m responding in the context of your current project.';
+        }
+        
+        // Add document creation context if selected
+        if (documentType) {
+          responseContent += `\n\nI'll prepare a ${documentType} document based on your request.`;
+        }
+
+        if (attachments && attachments.length > 0) {
+          responseContent += `\n\nI received ${attachments.length} attachment(s): ${attachments.map(f => f.name).join(', ')}.`;
+        }
+
+        // Simulate delay for demo purposes
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
-      
-      if (projectId) {
-        responseContent += '\n\nI\'m responding in the context of your current project.';
-      }
-      
-      // Add document creation context if selected
-      if (documentType) {
-        responseContent += `\n\nI'll prepare a ${documentType} document based on your request.`;
-      }
-      
-      // Create AI message object with common fields
+        // Create AI message object with common fields
       const aiMessageData: any = {
         content: responseContent,
         role: 'ai',
@@ -277,8 +325,8 @@ const ChatView: React.FC<ChatViewProps> = ({
         userId: user.uid
       };
       
-      // Only add projectId if it's defined (to avoid Firebase errors with undefined values)
-      if (projectId) {
+      // Only add projectId if it's defined and not null (to avoid Firebase errors with undefined values)
+      if (projectId && projectId !== undefined) {
         aiMessageData.projectId = projectId;
       }
       
@@ -334,27 +382,28 @@ const ChatView: React.FC<ChatViewProps> = ({
       </div>
     );
   }
-
   return (
     <div className="flex flex-col h-full relative">
-      {/* Back to Project button - matches the design in the screenshot */}
-      {projectId && (
-        <div className="absolute top-4 left-4 z-10">
-          <button 
-            onClick={() => window.location.href = `/dashboard/projects/${projectId}`}
-            className="flex items-center gap-2 bg-gray-800/80 hover:bg-gray-700 text-gray-200 py-2 px-3 rounded-lg transition-colors shadow-lg"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            
-          </button>
-        </div>
-      )}
-      
-      {/* Centered content with welcome message for empty state */}
+      {/* Top clearance space and back button container */}
+      <div className="relative pt-6 pb-4">
+        {/* Back to Project button - improved styling */}
+        {projectId && (
+          <div className="absolute top-6 left-6 z-10">
+            <button 
+              onClick={() => window.location.href = `/dashboard/projects/${projectId}`}
+              className="flex items-center gap-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl border border-gray-200/50 dark:border-gray-700/50 group"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span className="font-medium text-sm">Back to Project</span>
+            </button>
+          </div>
+        )}
+      </div>
+        {/* Centered content with welcome message for empty state */}
       {messages.length === 0 && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center max-w-6xl mx-auto px-4 md:px-8">
+        <div className="absolute inset-0 flex flex-col items-center justify-center max-w-6xl mx-auto px-4 md:px-8" style={{ paddingTop: projectId ? '80px' : '40px' }}>
           <div className="text-center mb-10">
             <div className="flex items-center justify-center mb-4">
               <div className="h-16 w-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-2 hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-pulse-slow">
@@ -365,8 +414,7 @@ const ChatView: React.FC<ChatViewProps> = ({
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
               {projectId ? 'Project Assistant' : 'Welcome to SME.AI'}
-            </h1>
-            <p className="text-xl max-w-2xl mx-auto" style={{ 
+            </h1>            <p className="text-xl max-w-2xl mx-auto" style={{ 
               color: resolvedTheme === 'dark' ? 'rgb(209, 213, 219)' : 'rgb(55, 65, 81)' 
             }}>
               {projectId 
@@ -374,6 +422,7 @@ const ChatView: React.FC<ChatViewProps> = ({
                 : 'Your intelligent assistant for engineering knowledge'
               }
             </p>
+  
           </div>
           
           {/* Input box for empty state - centered and with max width */}
@@ -447,45 +496,45 @@ const ChatView: React.FC<ChatViewProps> = ({
             )}
           </div>
         </div>
-      )}
-      
-      {/* Conversation view for when messages exist - using the new ChatLayout */}
+      )}      {/* Conversation view for when messages exist - using the new ChatLayout */}
       {messages.length > 0 && (
-        <ChatLayout 
-          inputComponent={
-            <ChatInput
-              onSendMessage={handleSendMessage}
-              disabled={isLoading}
-              isFirstMessage={false}
-              onToggleUseInternet={setUseInternet}
-              onToggleUseCloud={setUseCloud}
-              onSpecialtyChange={setSpecialty}
-              onDocumentTypeChange={setDocumentType}
-            />
-          }
-          showInputAnimation={showInputAnimation}
-          isLoading={isLoading}
-        >
-          {messages.map(message => (
-            <Message
-              key={message.id}
-              content={message.content}
-              role={message.role}
-              timestamp={message.timestamp}
-              isNew={message.isNew}
-            />
-          ))}
-          
-          {isLoading && (
-            <Message
-              content=""
-              role="ai"
-              isLoading={true}
-            />
-          )}
-          
-          <div ref={messagesEndRef} />
-        </ChatLayout>
+        <div className="pt-8">
+          <ChatLayout
+            inputComponent={
+              <ChatInput
+                onSendMessage={handleSendMessage}
+                disabled={isLoading}
+                isFirstMessage={false}
+                onToggleUseInternet={setUseInternet}
+                onToggleUseCloud={setUseCloud}
+                onSpecialtyChange={setSpecialty}
+                onDocumentTypeChange={setDocumentType}
+              />
+            }
+            showInputAnimation={showInputAnimation}
+            isLoading={isLoading}
+          >
+            {messages.map(message => (
+              <Message
+                key={message.id}
+                content={message.content}
+                role={message.role}
+                timestamp={message.timestamp}
+                isNew={message.isNew}
+              />
+            ))}
+            
+            {isLoading && (
+              <Message
+                content=""
+                role="ai"
+                isLoading={true}
+              />
+            )}
+            
+            <div ref={messagesEndRef} />
+          </ChatLayout>
+        </div>
       )}
     </div>
   );

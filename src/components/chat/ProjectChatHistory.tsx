@@ -175,9 +175,8 @@ const ProjectChatHistory: React.FC<ProjectChatHistoryProps> = ({ projectId, onSe
                 </div>
               </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between">
-                  <h3 className="font-medium text-gray-800 dark:text-gray-200 leading-tight mb-2">
+              <div className="flex-1 min-w-0">                <div className="flex items-start justify-between">
+                  <h3 className="font-medium text-gray-800 dark:text-gray-200 leading-tight mb-2 flex-1 pr-4">
                     {loadingMessages[chat.chatId] ? (
  <div className="flex items-center">
  <div className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
@@ -186,7 +185,21 @@ const ProjectChatHistory: React.FC<ProjectChatHistoryProps> = ({ projectId, onSe
                       getChatSummary(chat.chatId)
                     )}
                   </h3>
-                  <div className="flex-shrink-0">
+                  <div className="flex items-center space-x-2 flex-shrink-0">
+                    {/* Delete Button - always visible */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteChat(chat.chatId);
+                      }}
+                      className="p-1.5 rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 transition-all duration-200 hover:scale-110"
+                      aria-label="Delete chat"
+                      title="Delete chat"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
  <HiOutlineArrowCircleRight className="w-5 h-5 text-blue-500" />
                   </div>
                 </div>
@@ -196,22 +209,9 @@ const ProjectChatHistory: React.FC<ProjectChatHistoryProps> = ({ projectId, onSe
  <span>{formatTime(chat.updatedAt)}</span>
                 </div>
               </div>
-            </div>
-
-            {/* Add a subtle gradient highlight effect on hover */}
+            </div>            {/* Add a subtle gradient highlight effect on hover */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 opacity-0 hover:opacity-100 rounded-md transition-opacity pointer-events-none"></div>
           </Card>
-
- {/* Delete Button - appears on hover */}
- <button
- onClick={() => handleDeleteChat(chat.chatId)}
- className="absolute top-2 right-2 z-10 p-1 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
- aria-label="Delete chat"
- >
- <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
- <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
- </svg>
- </button>
         </div>
       ))}
 
