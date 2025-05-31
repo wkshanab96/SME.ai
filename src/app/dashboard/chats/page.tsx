@@ -10,15 +10,15 @@ export default function ChatsPage() {
   const router = useRouter();
   
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto pt-8"> {/* Added pt-8 for space above */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold gradient-text">Chat History</h1>
         <Button
           onClick={() => router.push('/dashboard/chats/new')}
-          className="flex items-center"
+          className="flex items-center text-sm" // Added text-sm for minimal appearance
           variant="primary"
         >
-          <HiOutlinePlus className="mr-2" /> New Chat
+          <HiOutlinePlus className="mr-1.5 h-4 w-4" /> New Chat {/* Adjusted icon margin and size */}
         </Button>
       </div>
       
