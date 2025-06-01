@@ -69,7 +69,13 @@ export default function ChatDetailPage() {
       setIsRenaming(false);
       return;
     }
-    // await ChatService.updateChat(chatId, { title: newTitle }); // Assuming updateChat exists
+    try {
+      await ChatService.updateChat(chatId, { title: newTitle.trim() });
+      setChat(prevChat => prevChat ? { ...prevChat, title: newTitle.trim() } : null);
+    } catch (error) {
+      console.error("Failed to rename chat:", error);
+      // Optionally, show an error to the user
+    }
     setIsRenaming(false);
   };
   if (loading) {

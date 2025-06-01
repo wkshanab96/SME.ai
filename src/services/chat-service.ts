@@ -199,8 +199,21 @@ export const ChatService = {
       console.error('Failed to update chat timestamp:', error);
       throw error;
     }
-  }
-  ,
+  },
+
+  // Update chat details (e.g., title)
+  async updateChat(chatId: string, updates: Partial<Pick<Chat, 'title'>>): Promise<void> {
+    try {
+      const chatRef = doc(db, 'chats', chatId);
+      await updateDoc(chatRef, {
+        ...updates,
+        updatedAt: serverTimestamp(), // Also update the timestamp
+      });
+    } catch (error) {
+      console.error('Failed to update chat:', error);
+      throw error;
+    }
+  },
 
   // Delete a chat and all its messages
   async deleteChat(chatId: string): Promise<void> {

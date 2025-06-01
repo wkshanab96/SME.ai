@@ -5,10 +5,10 @@ import {
   HiOutlineBeaker, HiOutlineLightningBolt, HiOutlineCog, 
   HiOutlineChip, HiOutlineDocumentText, HiOutlineClipboardCheck,
   HiOutlineDocument, HiOutlineDocumentReport, HiOutlineTable,
-  HiOutlinePaperClip, // Added for the main attachment button
   HiOutlinePhotograph, // Added for "Add Photo"
   HiOutlineDocumentAdd, // Added for "Add File"
   HiOutlineCloudUpload, // Added for cloud uploads
+  HiOutlinePlus, // Added for the new attachment icon
 } from 'react-icons/hi';
 
 export interface ChatInputProps {
@@ -281,7 +281,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   }`}
                   title="Add attachment"
                 >
-                  <HiOutlinePaperClip className="h-5 w-5" />
+                  <HiOutlinePlus className="h-5 w-5" />
                 </button>
                 
                 {/* Enhanced Attachment dropdown positioned from input attachment button */}
