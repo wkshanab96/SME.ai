@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { HiOutlinePlus } from 'react-icons/hi';
 import { Button, Card } from '@/components/ui';
 import ChatHistory from '@/components/chat/ChatHistory';
@@ -10,7 +11,12 @@ export default function ChatsPage() {
   const router = useRouter();
   
   return (
-    <div className="max-w-6xl mx-auto pt-8"> {/* Added pt-8 for space above */}
+    <motion.div
+      className="max-w-6xl mx-auto pt-8"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeInOut" }}
+    >
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold gradient-text">Chat History</h1>
         <Button

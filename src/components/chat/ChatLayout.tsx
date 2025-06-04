@@ -34,10 +34,10 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
       <div className="bottom-0 left-0 right-0 pb-6 pt-10 z-10">
         <div className="max-w-4xl mx-auto px-4 w-full">
           <div
-            className={`${
+            className={`transition-all duration-500 ease-out ${
               showInputAnimation 
-                ? 'transform translate-y-[-20px] opacity-0 transition-all duration-500 ease-out' 
-                : 'transform translate-y-0 opacity-100'
+                ? 'transform translate-y-12 opacity-0'  // Start from below and faded out
+                : 'transform translate-y-0 opacity-100' // End at normal position and fully visible
             }`}
           >
             {/* Chat input will be rendered here */}

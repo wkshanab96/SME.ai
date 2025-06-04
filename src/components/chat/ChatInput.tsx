@@ -237,7 +237,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <button
                 type="button"
                 onClick={() => removeAttachment(index)}
-                className="text-red-500 hover:text-red-700 ml-1"
+                className="text-red-500 hover:text-red-700 transform hover:scale-110 transition-all duration-150 ml-1"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -248,15 +248,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
         </div>
       )}
       <form onSubmit={handleSubmit} className="bg-transparent">
-        {/* Chat input with animated border on focus */}
+        {/* Chat input with subtle focus animation */}
         <div className="relative">
-          {/* Enhanced animated gradient border effect */}
-          {isFocused && (
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 rounded-full animate-gradient-x shadow-chat-focus"></div>
-          )}
-            <div className={`relative ${getBackgroundColor()} rounded-full border ${isFocused ? 'border-transparent z-10' : getBorderColor()} transition-all duration-300`}>              <textarea
+          {/* Main input container with focus styling */}
+          <div
+            className={`relative ${getBackgroundColor()} rounded-full border ${getBorderColor()}
+                        transition-all duration-300 ease-in-out
+                        focus-within:ring-2 focus-within:ring-blue-500/70 focus-within:border-blue-500`}
+          >
+            <textarea
               ref={textareaRef}
-              className={`w-full outline-none resize-none py-3 pl-6 pr-20 rounded-full min-h-[50px] max-h-[150px] ${getTextColor()} bg-transparent ${getPlaceholderColor()}`}
+              className={`w-full outline-none resize-none py-3 pl-6 pr-20 rounded-full min-h-[50px] max-h-[150px] ${getTextColor()} bg-transparent ${getPlaceholderColor()}
+                         focus:ring-0 focus:border-transparent`} // Inner textarea should not show its own focus ring if parent handles it
               placeholder={placeholder}
               value={message}
               onChange={handleChange}
@@ -349,7 +352,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <div className="flex justify-center mt-2 gap-2 relative">
           <button
             type="button"
-            className={`rounded-full p-1.5 ${getToolbarButtonBg(useInternet)} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
+            className={`rounded-full p-1.5 ${getToolbarButtonBg(useInternet)} hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-150 transform hover:scale-110`}
             onClick={handleInternetToggle}
             title="Use the internet"
           >
@@ -361,7 +364,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
           <button
             type="button"
-            className={`rounded-full p-1.5 ${getToolbarButtonBg(useCloud)} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
+            className={`rounded-full p-1.5 ${getToolbarButtonBg(useCloud)} hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-150 transform hover:scale-110`}
             onClick={handleCloudToggle}
             title="Use the cloud"
           >
@@ -375,7 +378,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <button
               type="button"
               onClick={toggleSpecialtyOptions}
-              className={`rounded-full p-1.5 ${getToolbarButtonBg(specialty !== 'general')} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
+              className={`rounded-full p-1.5 ${getToolbarButtonBg(specialty !== 'general')} hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-150 transform hover:scale-110`}
               title="Specialty"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -414,7 +417,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <button
               type="button"
               onClick={toggleDocumentOptions}
-              className={`rounded-full p-1.5 ${getToolbarButtonBg(documentType !== '')} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
+              className={`rounded-full p-1.5 ${getToolbarButtonBg(documentType !== '')} hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-150 transform hover:scale-110`}
               title="Create a Document"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

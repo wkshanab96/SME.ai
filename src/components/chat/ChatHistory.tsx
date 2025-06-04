@@ -154,10 +154,14 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ onSelectChat }) => {
 
   return (
     <div className="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
-      {chats.map(chat => (        <div key={chat.chatId} className="relative group hover:bg-gray-50 dark:hover:bg-gray-800/30 rounded-lg transition-colors duration-200">{/* Chat Card Container */}
+      {chats.map(chat => (
+        <div
+          key={chat.chatId}
+          className="relative group rounded-lg transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/30"
+          onClick={() => handleSelectChat(chat.chatId)} // Move onClick here for the whole area
+        >
           <Card
-            onClick={() => handleSelectChat(chat.chatId)}
-            className="p-4 cursor-pointer hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 relative"
+            className="p-4 cursor-pointer transition-shadow duration-200 group-hover:shadow-md border border-gray-200 dark:border-gray-700 relative bg-transparent" // bg-transparent so group hover shows
           >
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0 mt-1">
@@ -197,8 +201,8 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ onSelectChat }) => {
                   <span>{formatTime(chat.updatedAt)}</span>
                 </div>
               </div>
-            </div>            {/* Add a subtle gradient highlight effect on hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 opacity-0 hover:opacity-100 rounded-md transition-opacity pointer-events-none"></div>
+            </div>
+            {/* Removed the separate gradient hover div, relying on group-hover background and shadow */}
           </Card>
         </div>
       ))}

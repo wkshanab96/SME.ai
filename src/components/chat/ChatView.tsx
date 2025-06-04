@@ -192,18 +192,15 @@ const ChatView: React.FC<ChatViewProps> = ({
       content,
       role: 'user',
       timestamp,
-      isNew: messages.length === 0 // Only mark as new for the first message
+      isNew: true // Animate every new user message
     };
     
     // Animation for transitioning from empty state to conversation
     if (messages.length === 0) {
       setShowInputAnimation(true);
-      // Add message immediately for better synchronization
-      setMessages(prev => [...prev, userMessage]);
-    } else {
-      // Add the message immediately if not the first message
-      setMessages(prev => [...prev, userMessage]);
     }
+    // Add the message immediately
+    setMessages(prev => [...prev, userMessage]);
     
     // Show loading state
     setIsLoading(true);
@@ -339,7 +336,7 @@ const ChatView: React.FC<ChatViewProps> = ({
         content: responseContent,
         role: 'ai',
         timestamp: new Date(),
-        isNew: messages.length <= 1 // Only animate for the first conversation
+        isNew: true // Animate every new AI message
       };
       
       // Update messages, replacing the temp user message with the saved one
@@ -348,20 +345,20 @@ const ChatView: React.FC<ChatViewProps> = ({
           .concat([aiMessage])
       );
       
-      // Reset animations only for the first message exchange
-      if (messages.length <= 1) {
-        setTimeout(() => {
-          setMessages(prev => 
-            prev.map(msg => 
-              (msg.id === savedUserMessage.id || msg.id === savedAiMessage.id) 
-                ? { ...msg, isNew: false } 
-                : msg
-            )
-          );
-          // Reset animation state to complete the transition
+      // Reset isNew flag after animation duration to allow re-animation if needed later (though keys should handle this)
+      // And reset input animation flag
+      setTimeout(() => {
+        setMessages(prev =>
+          prev.map(msg =>
+            (msg.id === savedUserMessage.id || msg.id === aiMessage.id)
+              ? { ...msg, isNew: false }
+              : msg
+          )
+        );
+        if (showInputAnimation) { // Only reset if it was shown
           setShowInputAnimation(false);
-        }, 1000);
-      }
+        }
+      }, 1000); // Keep timeout similar to original, ensures animation completes
       
     } catch (error) {
       console.error('Error sending message:', error);
