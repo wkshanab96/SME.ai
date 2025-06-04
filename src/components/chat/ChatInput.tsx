@@ -20,6 +20,8 @@ export interface ChatInputProps {
   onToggleUseCloud: (value: boolean) => void;
   onSpecialtyChange: (value: string) => void;
   onDocumentTypeChange: (value: string) => void;
+  animationPhase?: 'welcome' | 'input' | 'suggestions' | 'complete';
+  showInputAnimation?: boolean;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -30,7 +32,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
   onToggleUseInternet,
   onToggleUseCloud,
   onSpecialtyChange,
-  onDocumentTypeChange
+  onDocumentTypeChange,
+  animationPhase = 'complete',
+  showInputAnimation = false
 }) => {
   const { resolvedTheme } = useTheme();
   const [message, setMessage] = useState('');
@@ -222,9 +226,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const getHoverBg = () => {
     return resolvedTheme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-100';
   };
-
   return (
-    <div className="w-full">
+    <div className={`w-full transition-all duration-800 ${
+      animationPhase === 'input' ? 'animate-chat-input-rise' : ''
+    } ${
+      animationPhase === 'input' ? 'animate-chat-input-morph' : ''
+    }`}>
       {/* Attachment previews */}
       {attachments.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-2">
@@ -247,14 +254,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
           ))}
         </div>
       )}
-      <form onSubmit={handleSubmit} className="bg-transparent">
-        {/* Chat input with animated border on focus */}
-        <div className="relative">
+      <form onSubmit={handleSubmit} className={`bg-transparent transition-all duration-600 ${
+        animationPhase === 'input' ? 'animate-chat-input-morph' : ''
+      }`}>        {/* Chat input with animated border on focus */}
+        <div className={`relative transition-all duration-500 ${
+          animationPhase === 'input' ? 'animate-chat-input-rise' : ''
+        }`}>
           {/* Enhanced animated gradient border effect */}
           {isFocused && (
             <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 rounded-full animate-gradient-x shadow-chat-focus"></div>
           )}
-            <div className={`relative ${getBackgroundColor()} rounded-full border ${isFocused ? 'border-transparent z-10' : getBorderColor()} transition-all duration-300`}>              <textarea
+            <div className={`relative ${getBackgroundColor()} rounded-full border ${isFocused ? 'border-transparent z-10' : getBorderColor()} transition-all duration-300 ${
+              animationPhase === 'input' ? 'animate-chat-input-morph' : ''
+            }`}>              <textarea
               ref={textareaRef}
               className={`w-full outline-none resize-none py-3 pl-6 pr-20 rounded-full min-h-[50px] max-h-[150px] ${getTextColor()} bg-transparent ${getPlaceholderColor()}`}
               placeholder={placeholder}
@@ -346,7 +358,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
             </div>
           </div>
         </div>        {/* Bottom toolbar buttons */}
-        <div className="flex justify-center mt-2 gap-2 relative">
+        <div className={`flex justify-center mt-2 gap-2 relative transition-all duration-700 ${
+          animationPhase === 'suggestions' ? 'animate-suggestions-cascade' : ''
+        }`} style={{
+          animationDelay: animationPhase === 'suggestions' ? '200ms' : '0ms'
+        }}>
           <button
             type="button"
             className={`rounded-full p-1.5 ${getToolbarButtonBg(useInternet)} hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors`}
