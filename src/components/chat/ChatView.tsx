@@ -67,6 +67,9 @@ const ChatView: React.FC<ChatViewProps> = ({
   const [specialty, setSpecialty] = useState('general');
   const [documentType, setDocumentType] = useState('');
   const [showInputAnimation, setShowInputAnimation] = useState(false);
+  const [isChatStarting, setIsChatStarting] = useState(false);
+  const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(true);
+  const [animationPhase, setAnimationPhase] = useState<'welcome' | 'input' | 'suggestions' | 'complete'>('welcome');
   const [chatId, setChatId] = useState<string | null>(initialChat ? initialChat.chatId : null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [projectName, setProjectName] = useState('');
@@ -194,12 +197,31 @@ const ChatView: React.FC<ChatViewProps> = ({
       timestamp,
       isNew: messages.length === 0 // Only mark as new for the first message
     };
-    
-    // Animation for transitioning from empty state to conversation
+      // Animation for transitioning from empty state to conversation
     if (messages.length === 0) {
-      setShowInputAnimation(true);
-      // Add message immediately for better synchronization
-      setMessages(prev => [...prev, userMessage]);
+      setIsChatStarting(true);
+      setAnimationPhase('welcome');
+      setShowWelcomeAnimation(false); // Start hiding welcome screen
+      
+      // Sequence the animations with proper timing
+      setTimeout(() => {
+        setAnimationPhase('input');
+        setShowInputAnimation(true);
+      }, 300);
+      
+      setTimeout(() => {
+        setAnimationPhase('suggestions');
+      }, 800);
+      
+      setTimeout(() => {
+        setAnimationPhase('complete');
+        setIsChatStarting(false);
+      }, 1200);
+      
+      // Add message with a slight delay for better visual flow
+      setTimeout(() => {
+        setMessages(prev => [...prev, userMessage]);
+      }, 400);
     } else {
       // Add the message immediately if not the first message
       setMessages(prev => [...prev, userMessage]);
@@ -400,21 +422,30 @@ const ChatView: React.FC<ChatViewProps> = ({
             </button>
           </div>
         )}
-      </div>
-        {/* Centered content with welcome message for empty state */}
+      </div>        {/* Centered content with welcome message for empty state */}
       {messages.length === 0 && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center max-w-6xl mx-auto px-4 md:px-8" style={{ paddingTop: projectId ? '80px' : '40px' }}>
-          <div className="text-center mb-10">
+        <div className={`absolute inset-0 flex flex-col items-center justify-center max-w-6xl mx-auto px-4 md:px-8 transition-all duration-1200 ${
+          !showWelcomeAnimation ? 'animate-chat-welcome-fade opacity-0' : 'opacity-100'
+        }`} style={{ paddingTop: projectId ? '80px' : '40px' }}>
+          <div className={`text-center mb-10 transition-all duration-800 ${
+            animationPhase === 'welcome' ? 'animate-chat-welcome-fade' : ''
+          }`}>
             <div className="flex items-center justify-center mb-4">
-              <div className="h-16 w-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-2 hover:shadow-xl transition-all duration-300 transform hover:scale-110 animate-pulse-slow">
+              <div className={`h-16 w-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-2 hover:shadow-xl transition-all duration-300 transform hover:scale-110 ${
+                isChatStarting ? 'animate-icon-bounce' : 'animate-pulse-slow'
+              }`}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
               </div>
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            <h1 className={`text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 ${
+              isChatStarting ? 'animate-typing-shimmer bg-gradient-to-r bg-[length:200%_100%]' : ''
+            }`}>
               {projectId ? 'Project Assistant' : 'Welcome to SME.AI'}
-            </h1>            <p className="text-xl max-w-2xl mx-auto" style={{ 
+            </h1>            <p className={`text-xl max-w-2xl mx-auto transition-all duration-600 ${
+              animationPhase === 'welcome' ? 'opacity-100' : 'opacity-80'
+            }`} style={{ 
               color: resolvedTheme === 'dark' ? 'rgb(209, 213, 219)' : 'rgb(55, 65, 81)' 
             }}>
               {projectId 
@@ -426,8 +457,11 @@ const ChatView: React.FC<ChatViewProps> = ({
           </div>
           
           {/* Input box for empty state - centered and with max width */}
-          <div className={`w-full max-w-xl mx-auto ${showInputAnimation ? 'transform translate-y-[-20px] opacity-0 transition-all duration-500 ease-out' : ''}`}>
-            <ChatInput
+          <div className={`w-full max-w-xl mx-auto transition-all duration-800 ${
+            showInputAnimation ? 'animate-chat-input-rise' : ''
+          } ${
+            animationPhase === 'input' ? 'animate-chat-input-morph' : ''
+          }`}>            <ChatInput
               onSendMessage={handleSendMessage}
               disabled={isLoading}
               isFirstMessage={isFirstMessage}
@@ -435,20 +469,27 @@ const ChatView: React.FC<ChatViewProps> = ({
               onToggleUseCloud={setUseCloud}
               onSpecialtyChange={setSpecialty}
               onDocumentTypeChange={setDocumentType}
+              animationPhase={animationPhase}
+              showInputAnimation={showInputAnimation}
             />
           </div>
-          
-          {/* Display different content based on whether this is a project view or normal chat view */}
-          <div className="w-full max-w-5xl mt-12">
+            {/* Display different content based on whether this is a project view or normal chat view */}
+          <div className={`w-full max-w-5xl mt-12 transition-all duration-600 ${
+            animationPhase === 'suggestions' ? 'animate-suggestions-cascade' : ''
+          }`}>
             {projectId ? (
               <>
-                <h2 className="text-lg font-semibold mb-4 text-center" style={{ 
+                <h2 className={`text-lg font-semibold mb-4 text-center transition-all duration-500 ${
+                  animationPhase === 'suggestions' ? 'animate-suggestions-cascade' : ''
+                }`} style={{ 
                   color: resolvedTheme === 'dark' ? 'rgb(209, 213, 219)' : 'rgb(55, 65, 81)'
                 }}>
                   Project Chat History
                 </h2>
                 
-                <div className="space-y-3 max-w-2xl mx-auto">
+                <div className={`space-y-3 max-w-2xl mx-auto transition-all duration-600 ${
+                  animationPhase === 'suggestions' ? 'animate-suggestions-cascade' : ''
+                }`}>
                   <ProjectChatHistory 
                   projectId={projectId as string} 
                   onSelectChat={(content: string) => handleSendMessage(content)} 
@@ -457,7 +498,9 @@ const ChatView: React.FC<ChatViewProps> = ({
               </>
             ) : (
               <>
-                <h2 className="text-lg font-semibold mb-6 text-center" style={{ 
+                <h2 className={`text-lg font-semibold mb-6 text-center transition-all duration-500 ${
+                  animationPhase === 'suggestions' ? 'animate-suggestions-cascade' : ''
+                }`} style={{ 
                   color: resolvedTheme === 'dark' ? 'rgb(209, 213, 219)' : 'rgb(55, 65, 81)'
                 }}>
                   Try asking about
@@ -465,8 +508,11 @@ const ChatView: React.FC<ChatViewProps> = ({
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {chatSuggestions.map((category, idx) => (
-                    <Card key={idx} className="p-5 border-t-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1" style={{
-                      borderTopColor: idx === 0 ? '#3B82F6' : idx === 1 ? '#8B5CF6' : '#EC4899'
+                    <Card key={idx} className={`p-5 border-t-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 ${
+                      animationPhase === 'suggestions' ? 'animate-suggestions-cascade' : ''
+                    }`} style={{
+                      borderTopColor: idx === 0 ? '#3B82F6' : idx === 1 ? '#8B5CF6' : '#EC4899',
+                      animationDelay: animationPhase === 'suggestions' ? `${idx * 100}ms` : '0ms'
                     }}>
                       <h3 className="text-lg font-semibold mb-3" style={{ 
                         color: resolvedTheme === 'dark' ? 'rgb(229, 231, 235)' : 'rgb(31, 41, 55)'
@@ -478,7 +524,12 @@ const ChatView: React.FC<ChatViewProps> = ({
                           <button 
                             key={i}
                             onClick={() => handleSendMessage(item.content)}
-                            className="w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex items-center border border-transparent hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm transform hover:scale-[1.02]"
+                            className={`w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 flex items-center border border-transparent hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm transform hover:scale-[1.02] group ${
+                              animationPhase === 'suggestions' ? 'animate-suggestions-cascade' : ''
+                            }`}
+                            style={{
+                              animationDelay: animationPhase === 'suggestions' ? `${(idx * 100) + (i * 50)}ms` : '0ms'
+                            }}
                           >
                             <span className="mr-3 text-xl transform transition-transform duration-200 group-hover:scale-110">{item.icon}</span>
                             <span className="text-sm leading-tight" style={{ 

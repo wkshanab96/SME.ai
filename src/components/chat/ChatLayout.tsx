@@ -6,6 +6,7 @@ interface ChatLayoutProps {
   inputComponent: ReactNode;
   isLoading?: boolean;
   showInputAnimation?: boolean;
+  animationPhase?: 'welcome' | 'input' | 'suggestions' | 'complete';
 }
 
 /**
@@ -16,7 +17,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   children,
   inputComponent,
   isLoading = false,
-  showInputAnimation = false
+  showInputAnimation = false,
+  animationPhase = 'complete'
 }) => {
   const { resolvedTheme } = useTheme();
 
@@ -29,15 +31,18 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
           </div>
         </div>
       </div>
-      
-      {/* Input area with fixed position - only animated during initial transition */}
-      <div className="bottom-0 left-0 right-0 pb-6 pt-10 z-10">
+        {/* Input area with fixed position - enhanced with professional animations */}
+      <div className={`bottom-0 left-0 right-0 pb-6 pt-10 z-10 transition-all duration-700 ${
+        animationPhase === 'input' ? 'animate-chat-input-rise' : ''
+      }`}>
         <div className="max-w-4xl mx-auto px-4 w-full">
           <div
-            className={`${
+            className={`transition-all duration-800 ease-out ${
               showInputAnimation 
-                ? 'transform translate-y-[-20px] opacity-0 transition-all duration-500 ease-out' 
+                ? 'animate-chat-input-rise' 
                 : 'transform translate-y-0 opacity-100'
+            } ${
+              animationPhase === 'input' ? 'animate-chat-input-morph' : ''
             }`}
           >
             {/* Chat input will be rendered here */}
