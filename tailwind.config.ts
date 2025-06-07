@@ -37,10 +37,10 @@ const config: Config = {
         'float': 'float 6s ease-in-out infinite',
         'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
         // Enhanced chat start animations
-        'chat-welcome-fade': 'chatWelcomeFade 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        'chat-input-rise': 'chatInputRise 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        'chat-input-morph': 'chatInputMorph 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-        'suggestions-cascade': 'suggestionsCascade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'chat-welcome-fade': 'chatWelcomeFade 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
+        'chat-input-rise': 'chatInputRise 0.7s cubic-bezier(0.25, 0.1, 0.25, 1) forwards 0.1s', // Added slight delay
+        'chat-input-morph': 'chatInputMorph 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+        'suggestions-cascade': 'suggestionsCascade 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
         'icon-bounce': 'iconBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
         'typing-shimmer': 'typingShimmer 1.5s ease-in-out infinite',
       },      keyframes: {
@@ -93,74 +93,47 @@ const config: Config = {
           '50%': { opacity: '0.5' }
         },        // Enhanced professional chat start animations
         chatWelcomeFade: {
-          '0%': { 
-            opacity: '0', 
-            transform: 'translateY(20px) scale(0.95)',
-            filter: 'blur(5px)'
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(15px) scale(0.98)',
           },
-          '50%': { 
-            opacity: '0.7', 
-            transform: 'translateY(10px) scale(0.98)',
-            filter: 'blur(2px)'
-          },
-          '100%': { 
-            opacity: '1', 
+          '100%': {
+            opacity: '1',
             transform: 'translateY(0) scale(1)',
-            filter: 'blur(0px)'
           },
         },
         chatInputRise: {
-          '0%': { 
-            transform: 'translateY(60px) scale(0.9)', 
+          '0%': {
+            transform: 'translateY(30px) scale(0.95)',
             opacity: '0',
             boxShadow: '0 0 0 rgba(79, 70, 229, 0)'
           },
-          '60%': { 
-            transform: 'translateY(-5px) scale(1.02)', 
-            opacity: '0.8',
-            boxShadow: '0 10px 25px rgba(79, 70, 229, 0.15)'
-          },
-          '100%': { 
-            transform: 'translateY(0) scale(1)', 
+          '100%': {
+            transform: 'translateY(0) scale(1)',
             opacity: '1',
-            boxShadow: '0 4px 12px rgba(79, 70, 229, 0.1)'
+            boxShadow: '0 2px 8px rgba(79, 70, 229, 0.08)'
           },
         },
         chatInputMorph: {
-          '0%': { 
-            borderRadius: '50px', 
-            opacity: '0',
-            transform: 'scale(0.8)',
-            background: 'linear-gradient(45deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1))'
+          '0%': {
+            borderRadius: '24px', // Slightly less rounded initially
+            opacity: '0.5',
+            transform: 'scale(0.95)',
           },
-          '50%': { 
-            borderRadius: '20px', 
-            opacity: '0.7',
-            transform: 'scale(1.05)',
-            background: 'linear-gradient(45deg, rgba(79, 70, 229, 0.05), rgba(124, 58, 237, 0.05))'
-          },
-          '100%': { 
-            borderRadius: '8px', 
+          '100%': {
+            borderRadius: '8px', // Standard border radius
             opacity: '1',
             transform: 'scale(1)',
-            background: 'transparent'
           },
         },
         suggestionsCascade: {
-          '0%': { 
-            opacity: '0', 
-            transform: 'translateY(30px) translateX(-10px) scale(0.9)',
-            filter: 'blur(3px)'
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(15px) scale(0.95)',
           },
-          '60%': { 
-            opacity: '0.8', 
-            transform: 'translateY(-2px) translateX(0) scale(1.02)',
-            filter: 'blur(1px)'
-          },
-          '100%': { 
-            opacity: '1', 
-            transform: 'translateY(0) translateX(0) scale(1)',
-            filter: 'blur(0px)'
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0) scale(1)',
           },
         },
         iconBounce: {
