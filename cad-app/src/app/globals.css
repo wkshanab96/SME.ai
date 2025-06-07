@@ -1,0 +1,236 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* React Flow Styles */
+@import '@reactflow/core/dist/style.css';
+@import '@reactflow/controls/dist/style.css';
+@import '@reactflow/minimap/dist/style.css';
+@import '@reactflow/node-resizer/dist/style.css';
+
+/* Base layer - Global base styles */
+@layer base {
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Custom scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: theme('colors.slate.100');
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: theme('colors.slate.300');
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.slate.400');
+  }
+}
+
+/* Components layer - Reusable component styles */
+@layer components {
+  /* CAD Canvas Styles with CSS Custom Properties */
+  .cad-canvas {
+    --grid-size: 20px;
+    --grid-color: theme('colors.gray.200');
+    --bg-color: theme('colors.white');
+    
+    background-color: var(--bg-color);
+    background-image: 
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+    background-position: 0 0, 0 0;
+  }
+
+  .cad-canvas.dark {
+    --grid-color: theme('colors.gray.700');
+    --bg-color: theme('colors.gray-800');
+  }
+
+  /* React Flow Node and Edge Styles */
+  .react-flow__node.selected {
+    box-shadow: 0 0 0 2px theme('colors.blue.500');
+  }
+
+  .react-flow__node:hover {
+    box-shadow: 0 0 0 1px theme('colors.blue.400');
+  }
+
+  .react-flow__edge.selected .react-flow__edge-path {
+    stroke: theme('colors.blue.500');
+    stroke-width: 3;
+  }
+
+  .react-flow__edge:hover .react-flow__edge-path {
+    stroke: theme('colors.blue.400');
+    stroke-width: 2;
+  }
+
+  .react-flow__connectionline {
+    stroke: theme('colors.blue.500');
+    stroke-width: 2;
+    stroke-dasharray: 5,5;
+  }
+
+  .react-flow__handle {
+    width: 8px;
+    height: 8px;
+    border: 2px solid theme('colors.white');
+    border-radius: 50%;
+  }
+
+  .react-flow__handle-connecting {
+    background: theme('colors.emerald.500');
+  }
+
+  .react-flow__controls {
+    box-shadow: theme('boxShadow.md');
+    border: 1px solid theme('colors.gray.200');
+  }
+
+  .react-flow__controls-button {
+    border-bottom: 1px solid theme('colors.gray.200');
+  }
+
+  .react-flow__controls-button:hover {
+    background: theme('colors.gray.50');
+  }
+
+  .react-flow__minimap {
+    border: 1px solid theme('colors.gray.200');
+    border-radius: 4px;
+  }
+
+  /* CAD Toolbar Styles */
+  .cad-toolbar-item {
+    @apply w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer transition-colors;
+  }
+
+  .cad-toolbar-item.active {
+    @apply bg-blue-100 border-blue-300 text-blue-700;
+  }
+
+  .cad-toolbar-item:hover {
+    @apply shadow-sm;
+  }
+
+  /* Properties Panel Styles */
+  .property-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+
+  .property-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  /* Glass Effect Utility */
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-effect.dark {
+    background: rgba(31, 41, 55, 0.8);
+    border: 1px solid rgba(75, 85, 99, 0.2);
+  }
+
+  /* Dark Mode Component Overrides */
+  .dark .cad-toolbar-item {
+    @apply bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700;
+  }
+
+  .dark .cad-toolbar-item.active {
+    @apply bg-blue-900 border-blue-600 text-blue-300;
+  }
+
+  .dark .property-input {
+    @apply bg-gray-800 border-gray-600 text-gray-300;
+  }
+
+  .dark .property-label {
+    @apply text-gray-300;
+  }
+}
+
+/* Utilities layer - Animation and utility classes */
+@layer utilities {
+  /* Animation utilities */
+  .fade-in {
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  .slide-in-left {
+    animation: slideInLeft 0.3s ease-out;
+  }
+
+  .slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  /* Utility classes */
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Print utilities */
+  .no-print {
+    @media print {
+      display: none !important;
+    }
+  }
+
+  .print-white-bg {
+    @media print {
+      background: white !important;
+    }
+  }
+}
+
+/* Animation keyframes - Outside of layers */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
