@@ -154,8 +154,7 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
               label="Line"
               isActive={activeTool === 'line'}
               onClick={() => onToolSelect('line')}
-            />
-            <ToolButton
+            />            <ToolButton
               tool="text"
               icon={
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,6 +164,37 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
               label="Text"
               isActive={activeTool === 'text'}
               onClick={() => onToolSelect('text')}
+            />            <ToolButton
+              tool="dimension"
+              icon={
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21l-3-3m0 0l3-3m-3 3h8a5 5 0 000-10h-8m11-4l3 3m0 0l-3 3m3-3H10a5 5 0 010-10h8" />
+                </svg>
+              }
+              label="Dimension"
+              isActive={activeTool === 'dimension'}
+              onClick={() => onToolSelect('dimension')}
+            />            <ToolButton
+              tool="freehand"
+              icon={
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              }
+              label="Freehand"
+              isActive={activeTool === 'freehand'}
+              onClick={() => onToolSelect('freehand')}
+            />
+            <ToolButton
+              tool="arrow"
+              icon={
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              }
+              label="Arrow"
+              isActive={activeTool === 'arrow'}
+              onClick={() => onToolSelect('arrow')}
             />
           </div>
         </div>

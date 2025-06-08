@@ -161,7 +161,8 @@ export interface CADDrawingSettings {
 // Tool Types
 export type CADTool = 
   | 'select' | 'pan' | 'zoom' | 'rectangle' | 'circle' | 'line' | 'polyline' 
-  | 'text' | 'dimension' | 'measure' | 'annotate' | 'symbol' | 'connector';
+  | 'text' | 'dimension' | 'measure' | 'annotate' | 'symbol' | 'connector' | 'freehand' | 'arrow'
+  | 'linear-dimension' | 'angular-dimension' | 'radial-dimension' | 'diameter-dimension';
 
 export interface CADToolState {
   activeTool: CADTool;

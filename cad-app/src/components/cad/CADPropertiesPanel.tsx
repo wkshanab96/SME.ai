@@ -3,11 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { Node } from 'reactflow';
 import { cn } from '@/lib/utils';
+import { AlignmentTools } from '../tools/AlignmentTools';
+import { DimensionTools } from '../tools/DimensionTools';
+import { CADTool } from '@/types/cad';
 
 interface CADPropertiesPanelProps {
   selectedElement: Node | null;
   onElementUpdate: (updatedElement: Node) => void;
   onTogglePanel: () => void;
+  allElements?: Node[];
+  onElementsUpdate?: (elements: Node[]) => void;
+  activeTool?: CADTool;
+  onToolSelect?: (tool: CADTool) => void;
+  onDimensionCreate?: (dimension: any) => void;
 }
 
 interface PropertyFieldProps {
@@ -91,11 +99,22 @@ function PropertySection({ title, children, isExpanded = true, onToggle }: Prope
   );
 }
 
-export function CADPropertiesPanel({ selectedElement, onElementUpdate, onTogglePanel }: CADPropertiesPanelProps) {
+export function CADPropertiesPanel({ 
+  selectedElement, 
+  onElementUpdate, 
+  onTogglePanel,
+  allElements = [],
+  onElementsUpdate,
+  activeTool,
+  onToolSelect,
+  onDimensionCreate
+}: CADPropertiesPanelProps) {
   const [expandedSections, setExpandedSections] = useState({
     general: true,
     geometry: true,
     style: true,
+    alignment: false,
+    dimensions: false,
     advanced: false,
   });
 
@@ -291,8 +310,35 @@ export function CADPropertiesPanel({ selectedElement, onElementUpdate, onToggleP
             value={style.opacity || 1}
             onChange={(value) => updateElementProperty('data.style.opacity', value)}
             type="number"
-          />
-        </PropertySection>
+          />        </PropertySection>        {/* Alignment Tools */}
+        {selectedElement && allElements.length > 1 && onElementsUpdate && (
+          <PropertySection
+            title="Alignment & Distribution"
+            isExpanded={expandedSections.alignment}
+            onToggle={() => toggleSection('alignment')}
+          >
+            <AlignmentTools
+              selectedNodes={[selectedElement]}
+              onNodesUpdate={onElementsUpdate}
+              className="w-full"
+            />
+          </PropertySection>
+        )}
+
+        {/* Dimension Tools */}
+        {activeTool && onToolSelect && onDimensionCreate && (
+          <PropertySection
+            title="Dimension Tools"
+            isExpanded={expandedSections.dimensions}
+            onToggle={() => toggleSection('dimensions')}
+          >            <DimensionTools
+              activeTool={activeTool}
+              onToolSelect={onToolSelect}
+              onDimensionCreate={onDimensionCreate}
+              className="w-full"
+            />
+          </PropertySection>
+        )}
 
         {/* Advanced Properties */}
         <PropertySection

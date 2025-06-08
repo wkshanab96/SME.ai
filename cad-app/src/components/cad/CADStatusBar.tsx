@@ -43,8 +43,7 @@ export function CADStatusBar({
   const formatZoom = (zoomLevel: number) => {
     return `${Math.round(zoomLevel * 100)}%`;
   };
-  const getToolDisplayName = (tool: CADTool) => {
-    const toolNames: Record<CADTool, string> = {
+  const getToolDisplayName = (tool: CADTool) => {    const toolNames: Record<CADTool, string> = {
       select: 'Select',
       pan: 'Pan',
       zoom: 'Zoom',
@@ -58,6 +57,12 @@ export function CADStatusBar({
       annotate: 'Annotate',
       symbol: 'Symbol',
       connector: 'Connector',
+      freehand: 'Freehand',
+      arrow: 'Arrow',
+      'linear-dimension': 'Linear Dimension',
+      'angular-dimension': 'Angular Dimension',
+      'radial-dimension': 'Radial Dimension',
+      'diameter-dimension': 'Diameter Dimension',
     };
     return toolNames[tool] || tool;
   };

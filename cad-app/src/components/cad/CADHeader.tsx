@@ -10,6 +10,13 @@ interface CADHeaderProps {
   onClear: () => void;
   onThemeToggle: () => void;
   theme: 'light' | 'dark';
+  onCopy?: () => void;
+  onPaste?: () => void;
+  onCut?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  onSelectAll?: () => void;
+  onDelete?: () => void;
 }
 
 interface MenuDropdownProps {
@@ -68,6 +75,13 @@ export function CADHeader({
   onClear,
   onThemeToggle,
   theme,
+  onCopy,
+  onPaste,
+  onCut,
+  onUndo,
+  onRedo,
+  onSelectAll,
+  onDelete,
 }: CADHeaderProps) {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
@@ -123,33 +137,31 @@ export function CADHeader({
           <MenuItem onClick={onClear}>
             Clear Canvas
           </MenuItem>
-        </MenuDropdown>
-
-        {/* Edit Menu */}
+        </MenuDropdown>        {/* Edit Menu */}
         <MenuDropdown
           title="Edit"
           isOpen={activeMenu === 'edit'}
           onToggle={() => handleMenuClick('edit')}
         >
-          <MenuItem onClick={() => {}} shortcut="Ctrl+Z">
+          <MenuItem onClick={onUndo || (() => {})} shortcut="Ctrl+Z">
             Undo
           </MenuItem>
-          <MenuItem onClick={() => {}} shortcut="Ctrl+Y">
+          <MenuItem onClick={onRedo || (() => {})} shortcut="Ctrl+Y">
             Redo
           </MenuItem>
-          <MenuItem onClick={() => {}} separator>
+          <MenuItem onClick={onCut || (() => {})} separator shortcut="Ctrl+X">
             Cut
           </MenuItem>
-          <MenuItem onClick={() => {}} shortcut="Ctrl+C">
+          <MenuItem onClick={onCopy || (() => {})} shortcut="Ctrl+C">
             Copy
           </MenuItem>
-          <MenuItem onClick={() => {}} shortcut="Ctrl+V">
+          <MenuItem onClick={onPaste || (() => {})} shortcut="Ctrl+V">
             Paste
           </MenuItem>
-          <MenuItem onClick={() => {}} separator>
+          <MenuItem onClick={onSelectAll || (() => {})} separator shortcut="Ctrl+A">
             Select All
           </MenuItem>
-          <MenuItem onClick={() => {}}>
+          <MenuItem onClick={onDelete || (() => {})}>
             Delete
           </MenuItem>
         </MenuDropdown>

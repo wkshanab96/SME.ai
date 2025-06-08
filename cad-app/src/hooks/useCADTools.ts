@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useReactFlow } from 'reactflow';
 import { CADElement, DrawingTool, Point, CADTool } from '@/types/cad';
 import { generateId } from '@/lib/utils';
@@ -8,6 +8,8 @@ export const useCADTools = () => {
   const activeToolRef = useRef<CADTool>('select');
   const isDrawingRef = useRef(false);
   const startPointRef = useRef<Point | null>(null);
+  const [clipboard, setClipboard] = useState<any[]>([]);
+
   const setActiveTool = useCallback((tool: CADTool) => {
     activeToolRef.current = tool;
     isDrawingRef.current = false;
@@ -135,8 +137,7 @@ export const useCADTools = () => {
       isDrawingRef.current = true;
       startPointRef.current = point;
     }
-  }, []);
-  const finishDrawing = useCallback((endPoint: Point) => {
+  }, []);  const finishDrawing = useCallback((endPoint: Point) => {
     if (!isDrawingRef.current || !startPointRef.current) return null;
 
     const tool = activeToolRef.current;
@@ -200,6 +201,24 @@ export const useCADTools = () => {
             height: Math.abs(endPoint.y - startPoint.y),
           },
         };
+        break;      case 'arrow':
+        const arrowWidth = Math.abs(endPoint.x - startPoint.x);
+        const arrowHeight = Math.max(Math.abs(endPoint.y - startPoint.y), 20);
+        elementData = {
+          ...elementData,
+          type: 'arrow',
+          data: {
+            ...elementData.data!,
+            width: Math.max(arrowWidth, 40),
+            height: Math.max(arrowHeight, 20),
+            properties: {
+              ...elementData.data!.properties,
+              arrowType: 'straight',
+              headType: 'triangle',
+              tailType: 'none',
+            },
+          },
+        };
         break;
 
       default:
@@ -215,6 +234,87 @@ export const useCADTools = () => {
     return newElement;
   }, [addElement]);
 
+  // Copy selected elements to clipboard
+  const copyElements = useCallback(() => {
+    const nodes = getNodes();
+    const edges = getEdges();
+    const selectedNodes = nodes.filter(node => node.selected);
+    const selectedEdges = edges.filter(edge => edge.selected);
+    
+    if (selectedNodes.length > 0 || selectedEdges.length > 0) {
+      setClipboard([...selectedNodes, ...selectedEdges]);
+      return selectedNodes.length + selectedEdges.length;
+    }
+    return 0;
+  }, [getNodes, getEdges]);
+
+  // Paste elements from clipboard
+  const pasteElements = useCallback(() => {
+    if (clipboard.length === 0) return [];
+
+    const newElements: any[] = [];
+    const offset = 20; // Offset for pasted elements
+
+    clipboard.forEach(item => {
+      if (item.type) { // It's a node
+        const newNode = {
+          ...item,
+          id: generateId(),
+          position: {
+            x: item.position.x + offset,
+            y: item.position.y + offset,
+          },
+          selected: true,
+          data: {
+            ...item.data,
+            createdAt: new Date(),
+            modifiedAt: new Date(),
+          },
+        };
+        newElements.push(newNode);
+      } else { // It's an edge
+        const newEdge = {
+          ...item,
+          id: generateId(),
+          selected: true,
+        };
+        newElements.push(newEdge);
+      }
+    });
+
+    // Clear existing selection
+    clearSelection();
+
+    // Add new elements
+    const nodesToAdd = newElements.filter(item => item.type);
+    const edgesToAdd = newElements.filter(item => !item.type);
+    
+    if (nodesToAdd.length > 0) {
+      addNodes(nodesToAdd);
+    }
+    if (edgesToAdd.length > 0) {
+      setEdges(prev => [...prev, ...edgesToAdd]);
+    }
+
+    return newElements;
+  }, [clipboard, clearSelection, addNodes, setEdges]);
+
+  // Cut selected elements (copy + delete)
+  const cutElements = useCallback(() => {
+    const copiedCount = copyElements();
+    if (copiedCount > 0) {
+      const nodes = getNodes();
+      const edges = getEdges();
+      const selectedNodeIds = nodes.filter(node => node.selected).map(node => node.id);
+      const selectedEdgeIds = edges.filter(edge => edge.selected).map(edge => edge.id);
+      
+      // Delete selected elements
+      selectedNodeIds.forEach(id => deleteElement(id));
+      setEdges(edges.filter(edge => !selectedEdgeIds.includes(edge.id)));
+    }
+    return copiedCount;
+  }, [copyElements, getNodes, getEdges, deleteElement, setEdges]);
+
   return {
     activeTool: activeToolRef.current,
     setActiveTool,
@@ -229,5 +329,8 @@ export const useCADTools = () => {
     startDrawing,
     finishDrawing,
     isDrawing: isDrawingRef.current,
+    copyElements,
+    pasteElements,
+    cutElements,
   };
 };
