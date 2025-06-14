@@ -16,11 +16,14 @@ import ReactFlow, {
   NodeTypes,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import '@/styles/drag-drop.css';
 
 import { CADHeader } from './CADHeader';
 import { CADToolbar } from './CADToolbar';
 import { CADPropertiesPanel } from './CADPropertiesPanel';
 import { CADStatusBar } from './CADStatusBar';
+import { ContextMenu, useContextMenu } from '../ui/ContextMenu';
+import { DropZone } from '../ui/DropZone';
 import { CADElement, CADTool, CADApplicationState } from '@/types';
 import { cn } from '@/lib/utils';
 import { useCADTools } from '@/hooks/useCADTools';
@@ -80,10 +83,12 @@ function CADCanvasInner({ className }: CADCanvasProps) {
   // Freehand drawing state
   const [currentPath, setCurrentPath] = useState<{ x: number; y: number }[]>([]);
   const [isDrawingFreehand, setIsDrawingFreehand] = useState(false);
-  
-  // Object snap state
+    // Object snap state
   const [currentSnapPoint, setCurrentSnapPoint] = useState<SnapPoint | null>(null);
   const [showSnapIndicators, setShowSnapIndicators] = useState(true);
+  
+  // Context menu state
+  const { contextMenu, showContextMenu, hideContextMenu } = useContextMenu();
   
   // Initialize CAD tools hook (now inside ReactFlowProvider)
   const cadTools = useCADTools();
@@ -457,11 +462,196 @@ function CADCanvasInner({ className }: CADCanvasProps) {
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
     setSelectedElement(node);
   }, []);
-
   // Handle canvas click (deselect)
   const onPaneClick = useCallback(() => {
     setSelectedElement(null);
-  }, []);
+    hideContextMenu();
+  }, [hideContextMenu]);
+
+  // Handle canvas right-click (context menu)
+  const onPaneContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    
+    const canvasContextItems = [
+      {
+        id: 'paste',
+        label: 'Paste',
+        shortcut: 'Ctrl+V',
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        ),
+        onClick: () => {
+          handlePaste();
+          hideContextMenu();
+        },
+      },
+      {
+        id: 'select-all',
+        label: 'Select All',
+        shortcut: 'Ctrl+A',
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        ),
+        onClick: () => {
+          handleSelectAll();
+          hideContextMenu();        },
+      },
+      { id: 'sep1', label: '', separator: true },
+      {
+        id: 'zoom-fit',
+        label: 'Fit to Screen',
+        shortcut: 'Ctrl+0',
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        ),
+        onClick: () => {
+          handleFitToScreen();
+          hideContextMenu();
+        },
+      },
+      {
+        id: 'zoom-in',
+        label: 'Zoom In',
+        shortcut: 'Ctrl+=',
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        ),
+        onClick: () => {
+          handleZoomIn();
+          hideContextMenu();
+        },
+      },
+      {
+        id: 'zoom-out',
+        label: 'Zoom Out',
+        shortcut: 'Ctrl+-',
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
+          </svg>
+        ),
+        onClick: () => {
+          handleZoomOut();
+          hideContextMenu();
+        },
+      },
+    ];
+
+    showContextMenu(event, canvasContextItems);
+  }, [showContextMenu, hideContextMenu, handlePaste, handleSelectAll, handleFitToScreen, handleZoomIn, handleZoomOut]);
+
+  // Handle node right-click (context menu)
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    setSelectedElement(node);
+    
+    const nodeContextItems = [
+      {
+        id: 'copy',
+        label: 'Copy',
+        shortcut: 'Ctrl+C',
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        ),
+        onClick: () => {
+          handleCopy();
+          hideContextMenu();
+        },
+      },
+      {
+        id: 'cut',
+        label: 'Cut',
+        shortcut: 'Ctrl+X',
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
+          </svg>
+        ),
+        onClick: () => {
+          handleCut();
+          hideContextMenu();
+        },
+      },
+      {
+        id: 'duplicate',
+        label: 'Duplicate',
+        shortcut: 'Ctrl+D',
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        ),
+        onClick: () => {
+          handleDuplicate();
+          hideContextMenu();        },
+      },
+      { id: 'sep1', label: '', separator: true },
+      {
+        id: 'delete',
+        label: 'Delete',
+        shortcut: 'Del',
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        ),
+        onClick: () => {
+          handleDelete();
+          hideContextMenu();        },
+      },
+      { id: 'sep2', label: '', separator: true },
+      {
+        id: 'properties',
+        label: 'Properties',
+        shortcut: 'F4',
+        icon: (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        ),
+        onClick: () => {
+          setRightPanelOpen(true);
+          hideContextMenu();
+        },
+      },
+    ];
+
+    showContextMenu(event, nodeContextItems);
+  }, [showContextMenu, hideContextMenu, handleCopy, handleCut, handleDuplicate, handleDelete, setRightPanelOpen]);
+  // Handle drag & drop from toolbar
+  const handleCanvasDrop = useCallback((event: React.DragEvent, position: { x: number; y: number }) => {
+    if (!rfInstance) return;
+    
+    // Get the dropped data
+    const toolType = event.dataTransfer.getData('application/cad-tool');
+    const elementType = event.dataTransfer.getData('application/cad-element');
+    
+    if (!toolType && !elementType) return;
+    
+    // Convert screen coordinates to flow coordinates
+    const flowPosition = rfInstance.project({
+      x: position.x,
+      y: position.y,
+    });
+    
+    // Add the dropped element
+    addElement(elementType || toolType, flowPosition);
+    
+    console.log(`Dropped ${elementType || toolType} at`, flowPosition);
+  }, [rfInstance, addElement]);
 
   // Handle canvas mouse events for drawing
   const handleCanvasMouseDown = useCallback((event: React.MouseEvent) => {
@@ -569,46 +759,47 @@ function CADCanvasInner({ className }: CADCanvasProps) {
             onAddElement={addElement}
             onTogglePanel={() => setLeftPanelOpen(false)}
           />
-        )}
-
-        {/* Main Canvas Area */}
+        )}        {/* Main Canvas Area */}
         <div className="flex-1 relative">
-          <div ref={reactFlowWrapper} id="reactflow-wrapper" className="w-full h-full">
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              onNodeClick={onNodeClick}
-              onPaneClick={onPaneClick}
-              onMouseDown={handleCanvasMouseDown}
-              onMouseMove={handleCanvasMouseMove}
-              onMouseUp={handleCanvasMouseUp}
-              onInit={setRfInstance}
-              nodeTypes={nodeTypes}
-              fitView
-              attributionPosition="bottom-left"
-              className="bg-white dark:bg-gray-800"
-              minZoom={0.1}
-              maxZoom={4}
-              deleteKeyCode={['Backspace', 'Delete']}
-            >
-              <Controls 
-                position="top-right"
-                className="bg-white dark:bg-gray-800 border dark:border-gray-700"
-              />
-              <MiniMap 
-                position="bottom-right"
-                className="bg-white dark:bg-gray-800 border dark:border-gray-700"
-                nodeColor="#3b82f6"
-              />
-              <Background 
-                gap={20} 
-                size={1}
-                color={theme === 'dark' ? '#374151' : '#e5e7eb'}
-              />
-            </ReactFlow>
+          <DropZone onDrop={handleCanvasDrop} className="w-full h-full">
+            <div ref={reactFlowWrapper} id="reactflow-wrapper" className="w-full h-full">
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                onNodeClick={onNodeClick}
+                onPaneClick={onPaneClick}
+                onPaneContextMenu={onPaneContextMenu}
+                onNodeContextMenu={onNodeContextMenu}
+                onMouseDown={handleCanvasMouseDown}
+                onMouseMove={handleCanvasMouseMove}
+                onMouseUp={handleCanvasMouseUp}
+                onInit={setRfInstance}
+                nodeTypes={nodeTypes}
+                fitView
+                attributionPosition="bottom-left"
+                className="bg-white dark:bg-gray-800"
+                minZoom={0.1}
+                maxZoom={4}
+                deleteKeyCode={['Backspace', 'Delete']}
+              >
+                <Controls 
+                  position="top-right"
+                  className="bg-white dark:bg-gray-800 border dark:border-gray-700"
+                />
+                <MiniMap 
+                  position="bottom-right"
+                  className="bg-white dark:bg-gray-800 border dark:border-gray-700"
+                  nodeColor="#3b82f6"
+                />
+                <Background 
+                  gap={20} 
+                  size={1}
+                  color={theme === 'dark' ? '#374151' : '#e5e7eb'}
+                />
+              </ReactFlow>
             
             {/* Snap indicators overlay */}
             {showSnapIndicators && currentSnapPoint && (
@@ -625,10 +816,10 @@ function CADCanvasInner({ className }: CADCanvasProps) {
                   pointerEvents: 'none',
                   zIndex: 1000,
                   boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                }}
-              />
+                }}              />
             )}
           </div>
+          </DropZone>
 
           {/* Toggle buttons for collapsed panels */}
           {!leftPanelOpen && (
@@ -677,15 +868,22 @@ function CADCanvasInner({ className }: CADCanvasProps) {
             onTogglePanel={() => setRightPanelOpen(false)}
           />
         )}
-      </div>
-
-      {/* Status Bar */}
+      </div>      {/* Status Bar */}
       <CADStatusBar
         activeTool={activeTool}
         selectedElement={selectedElement}
         zoom={rfInstance?.getZoom() || 1}
         elementCount={nodes.length}
       />
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <ContextMenu
+          items={contextMenu.items}
+          position={contextMenu.position}
+          onClose={hideContextMenu}
+        />
+      )}
     </div>
   );
 }

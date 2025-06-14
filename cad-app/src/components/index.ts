@@ -19,3 +19,9 @@ export { LayerManager } from './tools/LayerManager';
 export { SaveDialog } from './dialogs/SaveDialog';
 export { LoadDialog } from './dialogs/LoadDialog';
 export { ExportDialog } from './dialogs/ExportDialog';
+
+// UI Components
+export { Tooltip, CADTooltip } from './ui/Tooltip';
+export { ContextMenu, useContextMenu } from './ui/ContextMenu';
+export { DraggableToolItem } from './ui/DraggableToolItem';
+export { DropZone } from './ui/DropZone';

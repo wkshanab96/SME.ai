@@ -3,12 +3,16 @@
 import React, { useState } from 'react';
 import { CADTool } from '@/types';
 import { cn } from '@/lib/utils';
+import { CADTooltip } from '../ui/Tooltip';
+import { DraggableToolItem } from '../ui/DraggableToolItem';
 
 interface CADToolbarProps {
   activeTool: CADTool;
   onToolSelect: (tool: CADTool) => void;
   onAddElement: (elementType: string, position?: { x: number; y: number }) => void;
   onTogglePanel: () => void;
+  onDragStart?: (type: string, elementType?: string) => void;
+  onDragEnd?: () => void;
 }
 
 interface ToolButtonProps {
@@ -17,23 +21,31 @@ interface ToolButtonProps {
   label: string;
   isActive: boolean;
   onClick: () => void;
+  shortcut?: string;
+  description?: string;
+  onDragStart?: (type: string) => void;
+  onDragEnd?: () => void;
 }
 
-function ToolButton({ tool, icon, label, isActive, onClick }: ToolButtonProps) {
+function ToolButton({ tool, icon, label, isActive, onClick, shortcut, description, onDragStart, onDragEnd }: ToolButtonProps) {
   return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'w-full p-3 flex flex-col items-center space-y-1 rounded-lg transition-colors group relative',
-        isActive
-          ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-      )}
-      title={label}
+    <CADTooltip 
+      title={label} 
+      description={description}
+      shortcut={shortcut}
+      position="right"
     >
-      <div className="w-6 h-6">{icon}</div>
-      <span className="text-xs font-medium">{label}</span>
-    </button>
+      <DraggableToolItem
+        tool={tool}
+        icon={icon}
+        label={label}
+        isActive={isActive}
+        onClick={onClick}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+        shortcut={shortcut}
+      />
+    </CADTooltip>
   );
 }
 
@@ -75,22 +87,32 @@ interface SymbolButtonProps {
   label: string;
   icon: React.ReactNode;
   onClick: () => void;
+  description?: string;
+  onDragStart?: (type: string, elementType?: string) => void;
+  onDragEnd?: () => void;
 }
 
-function SymbolButton({ symbol, label, icon, onClick }: SymbolButtonProps) {
+function SymbolButton({ symbol, label, icon, onClick, description, onDragStart, onDragEnd }: SymbolButtonProps) {
   return (
-    <button
-      onClick={onClick}
-      className="w-full p-2 flex items-center space-x-2 text-left text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-      title={label}
+    <CADTooltip 
+      title={label} 
+      description={description || `Add ${label} to canvas`}
+      position="right"
     >
-      <div className="w-5 h-5">{icon}</div>
-      <span>{label}</span>
-    </button>
+      <DraggableToolItem
+        elementType={symbol}
+        icon={icon}
+        label={label}
+        onClick={onClick}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+        className="p-2 text-sm"
+      />
+    </CADTooltip>
   );
 }
 
-export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePanel }: CADToolbarProps) {
+export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePanel, onDragStart, onDragEnd }: CADToolbarProps) {
   const [expandedCategory, setExpandedCategory] = useState<string>('basic');
 
   const toggleCategory = (category: string) => {
@@ -120,8 +142,7 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
       <div className="flex-1 overflow-y-auto">
         {/* Drawing Tools */}
         <div className="p-4 border-b dark:border-gray-700">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Drawing Tools</h3>
-          <div className="grid grid-cols-2 gap-2">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Drawing Tools</h3>          <div className="grid grid-cols-2 gap-2">
             <ToolButton
               tool="select"
               icon={
@@ -130,8 +151,12 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
                 </svg>
               }
               label="Select"
+              description="Select and move elements"
+              shortcut="V"
               isActive={activeTool === 'select'}
               onClick={() => onToolSelect('select')}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
             />
             <ToolButton
               tool="pan"
@@ -141,8 +166,12 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
                 </svg>
               }
               label="Pan"
+              description="Pan around the canvas"
+              shortcut="Space"
               isActive={activeTool === 'pan'}
               onClick={() => onToolSelect('pan')}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
             />
             <ToolButton
               tool="line"
@@ -152,9 +181,14 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
                 </svg>
               }
               label="Line"
+              description="Draw straight lines"
+              shortcut="L"
               isActive={activeTool === 'line'}
               onClick={() => onToolSelect('line')}
-            />            <ToolButton
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+            />
+            <ToolButton
               tool="text"
               icon={
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,9 +196,14 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
                 </svg>
               }
               label="Text"
+              description="Add text annotations"
+              shortcut="T"
               isActive={activeTool === 'text'}
               onClick={() => onToolSelect('text')}
-            />            <ToolButton
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+            />
+            <ToolButton
               tool="dimension"
               icon={
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,8 +211,12 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
                 </svg>
               }
               label="Dimension"
+              description="Add dimensional annotations"
+              shortcut="D"
               isActive={activeTool === 'dimension'}
               onClick={() => onToolSelect('dimension')}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
             />            <ToolButton
               tool="freehand"
               icon={
@@ -182,8 +225,12 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
                 </svg>
               }
               label="Freehand"
+              description="Draw freehand sketches"
+              shortcut="F"
               isActive={activeTool === 'freehand'}
               onClick={() => onToolSelect('freehand')}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
             />
             <ToolButton
               tool="arrow"
@@ -193,8 +240,12 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
                 </svg>
               }
               label="Arrow"
+              description="Draw arrows and connectors"
+              shortcut="A"
               isActive={activeTool === 'arrow'}
               onClick={() => onToolSelect('arrow')}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
             />
           </div>
         </div>
@@ -204,46 +255,57 @@ export function CADToolbar({ activeTool, onToolSelect, onAddElement, onTogglePan
           title="Basic Shapes"
           isExpanded={expandedCategory === 'basic'}
           onToggle={() => toggleCategory('basic')}
-        >
-          <SymbolButton
+        >          <SymbolButton
             symbol="rectangle"
             label="Rectangle"
+            description="Basic rectangular shape"
             icon={
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <rect x="3" y="6" width="18" height="12" rx="2" ry="2" strokeWidth={2} />
               </svg>
             }
             onClick={() => handleSymbolClick('rectangle')}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
           />
           <SymbolButton
             symbol="circle"
             label="Circle"
+            description="Basic circular shape"
             icon={
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="9" strokeWidth={2} />
               </svg>
             }
             onClick={() => handleSymbolClick('circle')}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
           />
           <SymbolButton
             symbol="ellipse"
             label="Ellipse"
+            description="Elliptical shape"
             icon={
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <ellipse cx="12" cy="12" rx="9" ry="6" strokeWidth={2} />
               </svg>
             }
             onClick={() => handleSymbolClick('ellipse')}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
           />
           <SymbolButton
             symbol="polygon"
             label="Polygon"
+            description="Multi-sided polygon"
             icon={
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <polygon points="12,2 22,20 2,20" strokeWidth={2} />
               </svg>
             }
             onClick={() => handleSymbolClick('polygon')}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
           />
         </SymbolCategory>
 

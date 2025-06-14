@@ -2,11 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* React Flow Styles */
-@import '@reactflow/core/dist/style.css';
-@import '@reactflow/controls/dist/style.css';
-@import '@reactflow/minimap/dist/style.css';
-@import '@reactflow/node-resizer/dist/style.css';
+/* React Flow Styles - Updated for ReactFlow v11 */
+@import 'reactflow/dist/style.css';
 
 /* Base layer - Global base styles */
 @layer base {
@@ -24,22 +21,21 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: theme('colors.slate.100');
+    @apply bg-gray-100;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: theme('colors.slate.300');
-    border-radius: 4px;
+    @apply bg-gray-300 rounded;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: theme('colors.slate.400');
+    @apply bg-gray-400;
   }
 }
 
 /* Components layer - Reusable component styles */
 @layer components {
-  /* CAD Canvas Styles with CSS Custom Properties */
+  /* CAD Canvas Styles */
   .cad-canvas {
     --grid-size: 20px;
     --grid-color: theme('colors.gray.200');
@@ -53,9 +49,9 @@
     background-position: 0 0, 0 0;
   }
 
-  .cad-canvas.dark {
+  .dark .cad-canvas {
     --grid-color: theme('colors.gray.700');
-    --bg-color: theme('colors.gray-800');
+    --bg-color: theme('colors.gray.800');
   }
 
   /* React Flow Node and Edge Styles */
@@ -77,41 +73,6 @@
     stroke-width: 2;
   }
 
-  .react-flow__connectionline {
-    stroke: theme('colors.blue.500');
-    stroke-width: 2;
-    stroke-dasharray: 5,5;
-  }
-
-  .react-flow__handle {
-    width: 8px;
-    height: 8px;
-    border: 2px solid theme('colors.white');
-    border-radius: 50%;
-  }
-
-  .react-flow__handle-connecting {
-    background: theme('colors.emerald.500');
-  }
-
-  .react-flow__controls {
-    box-shadow: theme('boxShadow.md');
-    border: 1px solid theme('colors.gray.200');
-  }
-
-  .react-flow__controls-button {
-    border-bottom: 1px solid theme('colors.gray.200');
-  }
-
-  .react-flow__controls-button:hover {
-    background: theme('colors.gray.50');
-  }
-
-  .react-flow__minimap {
-    border: 1px solid theme('colors.gray.200');
-    border-radius: 4px;
-  }
-
   /* CAD Toolbar Styles */
   .cad-toolbar-item {
     @apply w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer transition-colors;
@@ -121,8 +82,12 @@
     @apply bg-blue-100 border-blue-300 text-blue-700;
   }
 
-  .cad-toolbar-item:hover {
-    @apply shadow-sm;
+  .dark .cad-toolbar-item {
+    @apply bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700;
+  }
+
+  .dark .cad-toolbar-item.active {
+    @apply bg-blue-900 border-blue-600 text-blue-300;
   }
 
   /* Properties Panel Styles */
@@ -132,27 +97,6 @@
 
   .property-label {
     @apply block text-sm font-medium text-gray-700 mb-1;
-  }
-
-  /* Glass Effect Utility */
-  .glass-effect {
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .glass-effect.dark {
-    background: rgba(31, 41, 55, 0.8);
-    border: 1px solid rgba(75, 85, 99, 0.2);
-  }
-
-  /* Dark Mode Component Overrides */
-  .dark .cad-toolbar-item {
-    @apply bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700;
-  }
-
-  .dark .cad-toolbar-item.active {
-    @apply bg-blue-900 border-blue-600 text-blue-300;
   }
 
   .dark .property-input {
@@ -166,7 +110,6 @@
 
 /* Utilities layer - Animation and utility classes */
 @layer utilities {
-  /* Animation utilities */
   .fade-in {
     animation: fadeIn 0.2s ease-in-out;
   }
@@ -179,29 +122,15 @@
     animation: slideInRight 0.3s ease-out;
   }
 
-  /* Utility classes */
   .no-select {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
   }
-
-  /* Print utilities */
-  .no-print {
-    @media print {
-      display: none !important;
-    }
-  }
-
-  .print-white-bg {
-    @media print {
-      background: white !important;
-    }
-  }
 }
 
-/* Animation keyframes - Outside of layers */
+/* Animation keyframes */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -232,5 +161,277 @@
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+/* Components layer - Reusable component styles */
+@layer components {
+  /* CAD Canvas Styles with Modern CSS Custom Properties */
+  .cad-canvas {
+    background-color: hsl(var(--cad-bg));
+    background-image: 
+      linear-gradient(hsl(var(--grid-color)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--grid-color)) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+    background-position: 0 0, 0 0;
+    position: relative;
+  }
+
+  /* React Flow Node and Edge Styles with CSS Variables */
+  .react-flow__node.selected {
+    box-shadow: 0 0 0 2px hsl(var(--cad-selection));
+  }
+
+  .react-flow__node:hover {
+    box-shadow: 0 0 0 1px hsl(var(--cad-selection) / 0.6);
+  }
+
+  .react-flow__edge.selected .react-flow__edge-path {
+    stroke: hsl(var(--cad-selection));
+    stroke-width: 3;
+  }
+
+  .react-flow__edge:hover .react-flow__edge-path {
+    stroke: hsl(var(--cad-accent) / 0.7);
+    stroke-width: 2;
+  }
+
+  .react-flow__connectionline {
+    stroke: hsl(var(--cad-selection));
+    stroke-width: 2;
+    stroke-dasharray: 5,5;
+  }
+
+  .react-flow__handle {
+    width: 8px;
+    height: 8px;
+    border: 2px solid hsl(var(--background));
+    border-radius: 50%;
+    background: hsl(var(--primary));
+  }
+
+  .react-flow__handle-connecting {
+    background: hsl(142.1 76.2% 36.3%); /* emerald-600 */
+  }
+
+  .react-flow__controls {
+    @apply shadow-md border border-border bg-card;
+  }
+
+  .react-flow__controls-button {
+    @apply border-b border-border last:border-b-0;
+  }
+
+  .react-flow__controls-button:hover {
+    @apply bg-muted;
+  }
+
+  .react-flow__minimap {
+    @apply border border-border rounded bg-card;
+  }
+  /* CAD Toolbar Styles */
+  .cad-toolbar-item {
+    @apply w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer transition-all duration-200;
+  }
+
+  .cad-toolbar-item.active {
+    @apply bg-blue-100 border-blue-300 text-blue-700;
+  }
+
+  .cad-toolbar-item:hover {
+    @apply shadow-sm;
+  }
+
+  /* Properties Panel Styles */
+  .property-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+  .property-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+  /* Glass Effect Utility */
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Utilities layer - Animation and utility classes */
+@layer utilities {
+  /* Animation utilities */
+  .fade-in {
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  .slide-in-left {
+    animation: slideInLeft 0.3s ease-out;
+  }
+
+  .slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  /* Modern utility classes */
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Focus utilities for accessibility */
+  .focus-visible-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+
+  /* Print utilities */
+  .no-print {
+    @media print {
+      display: none !important;
+    }
+  }
+
+  .print-white-bg {
+    @media print {
+      background: white !important;
+      color: black !important;
+    }
+  }
+
+  /* Reduced motion utilities */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-reduce-disable {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+  /* Container queries utilities */
+  .container-xs {
+    container-type: inline-size;
+  }
+
+  /* CAD-specific utility classes */
+  .snap-to-grid {
+    --snap-size: 20px;
+  }
+
+  .grid-visible {
+    background-image: 
+      linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* CAD drawing states */
+  .drawing-mode {
+    cursor: crosshair;
+  }
+
+  .selection-mode {
+    cursor: default;
+  }
+
+  .pan-mode {
+    cursor: grab;
+  }
+
+  .pan-active {
+    cursor: grabbing;
+  }
+
+  /* Measurement and precision utilities */
+  .precision-text {
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* CAD element states */
+  .cad-element {
+    vector-effect: non-scaling-stroke;
+  }
+  .cad-element-selected {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+
+  .cad-element-hover {
+    filter: brightness(1.1);
+  }
+
+  /* Animation preferences */
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-on-interaction {
+      transition: all 0.2s ease-in-out;
+    }
+  }
+}
+
+/* Enhanced animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Modern focus styles */
+@layer base {
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+/* Typography enhancements with @tailwindcss/typography */
+@layer base {
+  .prose {
+    --tw-prose-body: hsl(var(--foreground));
+    --tw-prose-headings: hsl(var(--foreground));
+    --tw-prose-lead: hsl(var(--muted-foreground));
+    --tw-prose-links: hsl(var(--primary));
+    --tw-prose-bold: hsl(var(--foreground));
+    --tw-prose-counters: hsl(var(--muted-foreground));
+    --tw-prose-bullets: hsl(var(--muted-foreground));
+    --tw-prose-hr: hsl(var(--border));
+    --tw-prose-quotes: hsl(var(--foreground));
+    --tw-prose-quote-borders: hsl(var(--border));
+    --tw-prose-captions: hsl(var(--muted-foreground));
+    --tw-prose-code: hsl(var(--foreground));
+    --tw-prose-pre-code: hsl(var(--muted-foreground));
+    --tw-prose-pre-bg: hsl(var(--muted));
+    --tw-prose-th-borders: hsl(var(--border));
+    --tw-prose-td-borders: hsl(var(--border));
   }
 }
